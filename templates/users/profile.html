@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    {% if user.profile.image %}
+                        <img src="{{ user.profile.image.url }}" class="rounded-circle mb-3 border border-4 border-success" alt="Profile" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=198754&color=fff&size=150" class="rounded-circle mb-3 border border-4 border-light shadow-sm" alt="Placeholder">
+                    {% endif %}
+                    
+                    <h3 class="fw-bold">{{ user.profile.farm_name }}</h3>
+                    <p class="text-muted mb-1">@{{ user.username }}</p>
+                    <p class="text-muted"><small>📍 <span id="location-display">{{ user.profile.location|default:"Location not set" }}</span></small></p>
+                    
+                    <hr>
+                    <div class="d-flex justify-content-around text-center">
+                        <div><h5>{{ animal_count }}</h5><small class="text-muted">Livestock</small></div>
+                        <div><h5>{{ sold_count }}</h5><small class="text-muted">Sold</small></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mt-3">
+                <div class="card-header bg-dark text-white">⚙️ Account Actions</div>
+                <div class="list-group list-group-flush">
+                    <button class="list-group-item list-group-item-action" onclick="alert('Exporting data to CSV...')">💾 Download Farm Data</button>
+                    <a href="#" class="list-group-item list-group-item-action">🔐 Change Password</a>
+                     <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">🚪 Log Out</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📝 Edit Profile & Farm Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <fieldset class="form-group mb-3">
+                            <legend class="border-bottom mb-3">👤 Personal Info & Photo</legend>
+                            {{ p_form.image|as_crispy_field }}
+                            {{ u_form|crispy }}
+                        </fieldset>
+                        
+                        <fieldset class="form-group mb-3">
+                            <legend class="border-bottom mb-3">🚜 Farm Settings</legend>
+                            {{ p_form.farm_name|as_crispy_field }}
+                            {{ p_form.phone|as_crispy_field }}
+                            
+                            <label for="id_location" class="form-label">Location</label>
+                            <div class="input-group mb-3">
+                                <input type="text" name="location" value="{{ p_form.location.value|default:'' }}" class="form-control" id="id_location">
+                                <button class="btn btn-outline-secondary" type="button" id="detect-location-btn">📍 Detect My Location</button>
+                            </div>
+
+                            {{ p_form.bio|as_crispy_field }}
+                        </fieldset>
+                        
+                        <div class="d-grid">
+                            <button class="btn btn-success fw-bold" type="submit">💾 Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('detect-location-btn').addEventListener('click', function() {
+        const locationInput = document.getElementById('id_location');
+        const btn = this;
+
+        btn.innerHTML = '⏳ Detecting...';
+        btn.disabled = true;
+
+        // 1. Try GPS first
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Success (GPS worked)
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            locationInput.value = data.address.city || data.address.town || data.address.village || "Coordinates Found";
+                            btn.innerHTML = '✅ GPS Found!';
+                            setTimeout(() => { btn.innerHTML = '📍 Detect My Location'; btn.disabled = false; }, 2000);
+                        });
+                },
+                () => {
+                    // Fail (GPS blocked/denied) -> Try IP Fallback
+                    console.log("GPS denied. Trying IP...");
+                    detectByIP(locationInput, btn);
+                }
+            );
+        } else {
+            detectByIP(locationInput, btn);
+        }
+    });
+
+    function detectByIP(input, btn) {
+        fetch('https://ipapi.co/json/')
+            .then(res => res.json())
+            .then(data => {
+                input.value = `${data.city}, ${data.region}`;
+                btn.innerHTML = '✅ IP Location Found!';
+            })
+            .catch(err => {
+                input.value = "Kenya (Manual Entry Required)";
+                btn.innerHTML = '⚠️ Detection Failed';
+            })
+            .finally(() => {
+                setTimeout(() => { btn.innerHTML = '📍 Detect My Location'; btn.disabled = false; }, 2000);
+            });
+    }
+</script>
+{% endblock content %}

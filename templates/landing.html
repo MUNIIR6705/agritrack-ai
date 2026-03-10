@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="py-5 text-center text-white" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{% static 'images/farm_hero.jpg' %}'); background-size: cover; background-position: center; min-height: 80vh; display: flex; align-items: center;">
+    <div class="container">
+        <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 3px; color: #b2ff59;">Future of Precision Farming</h6>
+        <h1 class="display-2 fw-bold mb-4">AI-Powered Livestock <br>Traceability & Health</h1>
+        <p class="lead mb-5 px-md-5">AgriTrack AI bridges the gap between smallholder farmers and commercial supply chains using Gemini 1.5 Pro diagnostics and Unique Electronic Profiles.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'users:register' %}" class="btn btn-success btn-lg rounded-pill px-5 fw-bold">Get Started</a>
+            <a href="#features" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold">Learn More</a>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Three Pillars of AgriTrack AI</h2>
+            <div class="mx-auto bg-success" style="height: 4px; width: 60px;"></div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-4 rounded-4">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                        <i class="fas fa-microscope text-success fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold">Risk Engine</h4>
+                    <p class="text-muted">Early detection classification engine for symptoms using pharmacological drug prescriptions. Identify outbreaks before they spread.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-4 rounded-4">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                        <i class="fas fa-qrcode text-primary fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold">Digital Passport</h4>
+                    <p class="text-muted">Unique Electronic Profiles (UEP) for every animal. A permanent digital history of weights, vaccinations, and growth curves.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-4 rounded-4">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                        <i class="fas fa-sync text-warning fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold">Supply Sync</h4>
+                    <p class="text-muted">Direct synchronization with commercial buyers. Automated "Market Readiness" alerts based on real-time weight data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Bridging the Commercial Divide</h2>
+                <p class="text-muted mb-4">Hotels and SEZs require verified healthy stock. AgriTrack AI provides the transparency they need through our digital ledger, ensuring Mary’s farm meets international supply standards.</p>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Verified Weight History</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> AI-Cleared Health Screening</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> M-Pesa Automated Payments</li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

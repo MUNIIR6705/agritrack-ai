@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark">📦 Inventory & Supplies</h2>
+        <p class="text-muted">Manage your feed, medicine, and equipment.</p>
+    </div>
+    <a href="{% url 'add_supply' %}" class="btn btn-primary px-4 py-2 shadow-sm fw-bold">
+        + Add Supply
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Item Name</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Minimum Level</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Last Updated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in supplies %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ item.name }}</td>
+                        <td>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">
+                                {{ item.supply_type }}
+                            </span>
+                        </td>
+                        <td class="fw-bold">{{ item.quantity }} {{ item.unit }}</td>
+                        <td class="text-muted">{{ item.min_stock_level }} {{ item.unit }}</td>
+                        <td>
+                            {% if item.is_low %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Low Stock</span>
+                            {% else %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Good</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4 text-muted small">{{ item.last_updated|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">No supplies found. Click "Add Supply" to start tracking inventory.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

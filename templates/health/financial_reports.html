@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">📈 Financial Reports</h2>
+            <p class="text-muted mb-0">AgriTrack AI Farm Economics & M-Pesa Cash Flow</p>
+        </div>
+        <a href="{% url 'health:add_transaction' %}" class="btn btn-success px-4 fw-bold shadow-sm rounded-pill">
+            <i class="fas fa-plus-circle me-2"></i>New Transaction
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-4 border-success p-3 h-100 bg-white">
+                <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem;">Total Revenue</small>
+                <h3 class="fw-bold text-success mb-0">KES {{ income|default:"0.00" }}</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-4 border-danger p-3 h-100 bg-white">
+                <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem;">Total Expenses</small>
+                <h3 class="fw-bold text-danger mb-0">KES {{ expense|default:"0.00" }}</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-4 {% if profit >= 0 %}border-primary{% else %}border-warning{% endif %} p-3 h-100 bg-white">
+                <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem;">Net Profit/Loss</small>
+                <h3 class="fw-bold {% if profit >= 0 %}text-primary{% else %}text-warning{% endif %} mb-0">KES {{ profit|default:"0.00" }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-file-invoice-dollar me-2 text-success"></i>Transaction Ledger</h5>
+            <div class="d-flex align-items-center">
+                <i class="fas fa-shield-check text-success me-2"></i>
+                <span class="badge bg-light text-dark border fw-normal">Safaricom Daraja 3.0 Verified</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th class="ps-4">Date & Time</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Amount (KES)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="text-dark d-block fw-bold small">{{ record.date|date:"d M Y" }}</span>
+                                <small class="text-muted">{{ record.date|date:"H:i" }}</small>
+                            </td>
+                            <td><span class="badge bg-light text-secondary border px-2 py-1">{{ record.category }}</span></td>
+                            <td>
+                                <span class="text-dark">{{ record.description }}</span>
+                                {% if "M-Pesa" in record.description %}
+                                    <small class="text-success d-block"><i class="fas fa-mobile-alt me-1"></i> Mobile Payment</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if "Pending" in record.description %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill">
+                                        <i class="fas fa-hourglass-half me-1"></i> STK Pending
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                        <i class="fas fa-check me-1"></i> Completed
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4 fw-bold fs-6 {% if record.transaction_type == 'Income' %}text-success{% else %}text-danger{% endif %}">
+                                {% if record.transaction_type == 'Income' %}+{% else %}-{% endif %} {{ record.amount }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="py-4">
+                                    <i class="fas fa-receipt fa-3x text-light mb-3"></i>
+                                    <p class="text-muted mb-0">No transaction history found for this period.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(45, 90, 39, 0.02);
+    }
+    .badge { font-weight: 600; letter-spacing: 0.3px; }
+    .border-start { border-width: 5px !important; }
+</style>
+{% endblock %}

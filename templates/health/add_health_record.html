@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-danger text-white py-3">
+                <h4 class="mb-0 fw-bold">🩺 Add Health Record & Symptoms</h4>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST" action="{% url 'health:add_health_record' %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Select Animal</label>
+                        <select id="animal-select" name="animal" class="form-select border-danger-subtle" required>
+                            <option value="" disabled selected>Choose an animal...</option>
+                            {% for animal in animals %}
+                                <option value="{{ animal.id }}" data-species="{{ animal.species }}">
+                                    {{ animal.tag_number }} - {{ animal.species }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-end mb-2">
+                            <label class="form-label fw-bold text-muted small text-uppercase mb-0">Symptoms Observed</label>
+                            <button type="button" id="ask-ai-btn" class="btn btn-sm btn-outline-danger fw-bold rounded-pill shadow-sm transition-all">
+                                ✨ Ask AgriTrack AI
+                            </button>
+                        </div>
+                        <textarea id="symptoms-input" name="symptoms" class="form-control" rows="3" placeholder="e.g., Heavy coughing, not eating, shivering..." required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Severity Level</label>
+                        <select id="severity-select" name="severity" class="form-select" required>
+                            <option value="Low">🟢 Low (Monitor)</option>
+                            <option value="Medium">🟡 Medium (Needs Attention)</option>
+                            <option value="High">🔴 High (Critical / Vet Required)</option>
+                            <option value="Critical">💀 Critical (Immediate Action)</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-muted small text-uppercase">AI Diagnosis</label>
+                            <input type="text" id="diagnosis-input" name="diagnosis" class="form-control border-info bg-light fw-bold" readonly placeholder="AI diagnosis result...">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Suggested Treatment</label>
+                            <textarea id="treatment-input" name="treatment" class="form-control border-info bg-light" readonly rows="2" placeholder="AI action plan..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'health:health_dashboard' %}" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger fw-bold px-4 shadow-sm">Save Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('ask-ai-btn').addEventListener('click', function() {
+        const symptomsInput = document.getElementById('symptoms-input');
+        const animalSelect = document.getElementById('animal-select');
+        const diagnosisField = document.getElementById('diagnosis-input');
+        const treatmentField = document.getElementById('treatment-input');
+        const severitySelect = document.getElementById('severity-select');
+        const symptoms = symptomsInput.value;
+        const btn = this;
+        
+        // Basic Validation
+        if (!animalSelect.value) {
+            alert('Please select an animal first.');
+            animalSelect.focus();
+            return;
+        }
+
+        if (!symptoms.trim()) {
+            alert('Please type the symptoms first.');
+            symptomsInput.focus();
+            return;
+        }
+
+        const selectedOption = animalSelect.options[animalSelect.selectedIndex];
+        const species = selectedOption.getAttribute('data-species');
+
+        // Professional loading state
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Consulting AgriTrack AI...';
+        btn.disabled = true;
+
+        // Reset previous validation styles
+        diagnosisField.classList.remove('is-valid');
+        treatmentField.classList.remove('is-valid');
+
+        fetch("{% url 'health:suggest_treatment' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ 
+                symptoms: symptoms,
+                species: species 
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Server returned an error');
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === "success") {
+                // Populate fields with fallback for empty strings
+                diagnosisField.value = data.diagnosis || "No specific diagnosis found";
+                treatmentField.value = data.treatment || "Consult your local vet";
+                
+                // Auto-set Severity dropdown
+                if (data.severity) {
+                    severitySelect.value = data.severity;
+                }
+                
+                // Add visual success styles
+                diagnosisField.classList.add('is-valid');
+                treatmentField.classList.add('is-valid');
+            } else {
+                alert(data.message || 'AI analysis failed. Try more specific symptoms.');
+            }
+        })
+        .catch(error => {
+            console.error('AI Error:', error);
+            alert('The AI is currently processing other requests. Please enter the diagnosis manually or try again in a moment.');
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    });
+</script>
+
+<style>
+    .transition-all { transition: all 0.3s ease; }
+    .btn-outline-danger:hover { transform: translateY(-1px); }
+</style>
+{% endblock %}

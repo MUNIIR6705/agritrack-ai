@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">
+                {{ animal.tag_number }} 
+                <span class="badge bg-secondary ms-2" style="font-size: 0.9rem;">{{ animal.species }}</span>
+            </h2>
+            <p class="text-muted mb-0">Farm: {{ animal.owner.username }}</p>
+        </div>
+        <a href="{% url 'health:add_health_record' %}" class="btn btn-danger shadow-sm">
+            🩺 Log Health Issue
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold text-success">📋 Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <span class="text-muted small text-uppercase fw-bold">Breed</span><br>
+                            <span class="fs-5">{{ animal.breed|default:"Unknown" }}</span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <span class="text-muted small text-uppercase fw-bold">Gender</span><br>
+                            <span class="fs-5">{{ animal.gender }}</span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <span class="text-muted small text-uppercase fw-bold">Age</span><br>
+                            <span class="fs-5">{{ animal.date_of_birth|timesince }} old</span>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <span class="text-muted small text-uppercase fw-bold">Status</span><br>
+                            {% if animal.status == 'Active' %}
+                                <span class="badge bg-success shadow-sm px-3 py-2">{{ animal.status }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary shadow-sm px-3 py-2">{{ animal.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="d-grid gap-2 mb-4">
+                <a href="{% url 'health:record_weight' %}?animal={{ animal.id }}" class="btn btn-primary fw-bold py-2 shadow-sm">
+                    ⚖️ Record Weight
+                </a>
+            </div>
+
+            <div class="card shadow border-dark mb-4">
+                <div class="card-header bg-dark text-white text-center py-2">
+                    <h6 class="mb-0 fw-bold">📲 Digital Traceability</h6>
+                </div>
+                <div class="card-body text-center bg-light">
+                    {% if animal.qr_code %}
+                        <img src="{{ animal.qr_code.url }}" alt="QR Code for {{ animal.tag_number }}" class="img-fluid border rounded shadow-sm bg-white p-2 mb-2" style="max-width: 150px;">
+                        <p class="small text-muted mb-0">Scan to view complete history</p>
+                    {% else %}
+                        <div class="p-4 border rounded text-muted">
+                            <i class="fas fa-qrcode fa-3x mb-2 opacity-25"></i>
+                            <p class="mb-0 small">No QR code generated yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="d-grid">
+                <a href="{% url 'animals:animal_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Roster
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

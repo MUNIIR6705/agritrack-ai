@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4>📝 Join AgriTrack AI</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ field.label }}</label>
+                                <input type="{{ field.field.widget.input_type }}" 
+                                       name="{{ field.name }}" 
+                                       class="form-control" 
+                                       {% if field.value %}value="{{ field.value }}"{% endif %}>
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </fieldset>
+                    
+                    <div class="d-grid mt-3">
+                        <button class="btn btn-success" type="submit">Sign Up</button>
+                    </div>
+                </form>
+                <div class="border-top pt-3 mt-3 text-center">
+                    <small class="text-muted">
+                        Already have an account? <a href="/login/" class="ml-2">Log In</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

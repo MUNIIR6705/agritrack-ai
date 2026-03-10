@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --agri-dark: #004d3d;
+        --agri-primary: #00a651;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+    }
+
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                    url("{% static 'images/image_5fa659.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .market-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .market-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .ready-badge {
+        background: var(--agri-primary);
+        color: white;
+        font-weight: bold;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+    }
+
+    .uep-text {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        color: var(--agri-dark);
+        background: rgba(0,0,0,0.05);
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 rounded-4 shadow-lg text-white" style="background: rgba(0, 77, 61, 0.85); backdrop-filter: blur(10px);">
+                <h6 class="text-uppercase mb-2" style="letter-spacing: 2px; color: #b2ff59;">Supply Chain Hub</h6>
+                <h1 class="fw-bold">Market Ready Stock</h1>
+                <p class="mb-0 opacity-75">Synchronizing your inventory with hotel and commercial buyer requirements.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for item in ready_stock %}
+        <div class="col-md-4">
+            <div class="card market-card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="ready-badge">AI VERIFIED</span>
+                        <h5 class="fw-bold mb-0 text-dark">{{ item.weight }} kg</h5>
+                    </div>
+                    
+                    <h4 class="fw-bold mb-1 text-dark">{{ item.animal.species }}</h4>
+                    <p class="text-muted small mb-3">Breed: {{ item.animal.breed|default:"Standard" }}</p>
+                    
+                    <div class="mb-4">
+                        <small class="text-muted d-block mb-1">Electronic Profile (UEP)</small>
+                        <span class="uep-text">{{ item.uep }}</span>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="{% url 'health:animal_digital_passport' item.animal.id %}" class="btn btn-outline-success rounded-pill fw-bold">
+                            View Full Traceability
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="p-5 rounded-4 bg-white bg-opacity-75">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h3 class="fw-bold text-dark">No Market Ready Stock</h3>
+                <p class="text-muted">Stock will appear here once they reach the target weight and pass health screenings.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

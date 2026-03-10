@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white py-3 text-center">
+                <h4 class="fw-bold mb-0 text-dark">🐣 Log Breeding Event</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Select Mother (Dam)</label>
+                        <select name="mother" class="form-select" required>
+                            <option value="" selected disabled>Choose a female animal...</option>
+                            {% for female in females %}
+                            <option value="{{ female.id }}">{{ female.tag_number }} - {{ female.species }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Father Tag (Sire)</label>
+                        <input type="text" name="father_tag" class="form-control" placeholder="e.g. SR-001 or External" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Mating Date</label>
+                        <input type="date" name="mating_date" class="form-control" required>
+                    </div>
+
+                    <div class="alert alert-info py-2 mb-4">
+                        <small>💡 <strong>Note:</strong> Delivery dates are auto-calculated (Pigs: 114 days | Rabbits: 31 days).</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">Save Breeding Record</button>
+                    <a href="{% url 'breeding_dashboard' %}" class="btn btn-link w-100 text-muted text-decoration-none mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

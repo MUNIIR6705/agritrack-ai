@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h4>🩺 AI Health Risk Engine</h4>
+            </div>
+            <div class="card-body">
+                <p>Describe the animal's condition. The AI will analyze symptoms for disease risks.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Animal</label>
+                        <select name="animal_id" class="form-select">
+                            {% for animal in animals %}
+                            <option value="{{ animal.id }}">{{ animal.tag_number }} - {{ animal.species }}</option>
+                            {% empty %}
+                            <option value="" disabled selected>No animals found (Add one in Admin panel first)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Observed Symptoms</label>
+                        <textarea name="symptoms" class="form-control" rows="4" placeholder="e.g., coughing, high fever, loss of appetite, lethargy..."></textarea>
+                        <div class="form-text">Be as specific as possible for better accuracy.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            🔍 Run AI Diagnosis
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

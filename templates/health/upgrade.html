@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h6 class="text-success fw-bold text-uppercase mb-3">AgriTrack AI Premium</h6>
+            <h1 class="display-4 fw-bold mb-4">Unlock Professional Farm Intelligence</h1>
+            <p class="lead text-muted mb-5">Access the Supply Chain Hub, Predictive Breeding, and advanced AI diagnostics to scale your farm operations.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                <h3 class="fw-bold">Free Tier</h3>
+                <h2 class="display-6 fw-bold mb-4">KES 0<span class="fs-6 text-muted">/mo</span></h2>
+                <ul class="list-unstyled mb-5">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Register Animals</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Basic Weight Logs</li>
+                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> AI Risk Engine</li>
+                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i> Market Hub Listing</li>
+                </ul>
+                <button class="btn btn-outline-secondary rounded-pill disabled w-100">Current Plan</button>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card h-100 border-success shadow-lg rounded-4 p-4 position-relative" style="border-width: 2px;">
+                <span class="badge bg-success position-absolute top-0 start-50 translate-middle rounded-pill px-4">RECOMMENDED</span>
+                <h3 class="fw-bold">AI Pro Plan</h3>
+                <h2 class="display-6 fw-bold mb-4">KES 1,000<span class="fs-6 text-muted">/mo</span></h2>
+                <ul class="list-unstyled mb-5">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> <strong>Diagnostic Risk Engine</strong></li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> <strong>Predictive Breeding ML</strong></li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> <strong>Supply Chain Synchronization</strong></li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Automated M-Pesa Billing</li>
+                </ul>
+                <form action="{% url 'health:upgrade_subscription' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success rounded-pill w-100 fw-bold">Upgrade with M-Pesa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

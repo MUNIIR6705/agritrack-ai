@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriTrack AI | Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { 
+            --agri-green: #2d5a27; 
+            --agri-dark: #1a3a34; 
+            --agri-accent: #ffc107;
+        }
+        
+        body { 
+            background-color: #f8f9fa; 
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; 
+            overflow-x: hidden;
+        }
+        
+        .navbar-custom { 
+            background: white; 
+            border-bottom: 2px solid var(--agri-green);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-item { 
+            border: none; 
+            padding: 14px 24px; 
+            transition: all 0.2s ease-in-out; 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none; 
+            color: #444;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .sidebar-item:hover { 
+            background-color: #f0f4f0; 
+            color: var(--agri-green);
+            padding-left: 30px;
+        }
+
+        .sidebar-item.active {
+            background-color: #e8f5e9;
+            color: var(--agri-green);
+            border-left: 5px solid var(--agri-green);
+        }
+        
+        .sidebar-label { 
+            font-size: 0.7rem; 
+            font-weight: 800; 
+            color: #adb5bd; 
+            padding: 24px 24px 8px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+        }
+        
+        .nav-icon { 
+            width: 30px; 
+            font-size: 1.1rem;
+            margin-right: 12px; 
+        }
+
+        .pulse-ai::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            width: 8px;
+            height: 8px;
+            background: var(--agri-accent);
+            border-radius: 50%;
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0px rgba(255, 193, 7, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(255, 193, 7, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-custom sticky-top py-3 mb-4">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center">
+                <button class="btn border-0 shadow-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                    <i class="fas fa-bars fa-lg"></i>
+                </button>
+                <a class="navbar-brand fw-bold" href="{% url 'health:health_dashboard' %}" style="color: var(--agri-green); font-size: 1.4rem;">
+                    <i class="fas fa-seedling me-2"></i>AgriTrack <span class="text-dark">AI</span>
+                </a>
+            </div>
+            <div class="d-none d-md-block">
+                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                    <i class="fas fa-shield-halved me-1"></i> Muniir & Co Secure System
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu" style="width: 290px;">
+        <div class="offcanvas-header bg-dark text-white py-4 shadow">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-success p-2 me-3">
+                    <i class="fas fa-user-check text-white"></i>
+                </div>
+                <h5 class="offcanvas-title fw-bold text-truncate" style="max-width: 180px;">{{ user.username|title }}'s Farm</h5>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        
+        <div class="offcanvas-body p-0">
+            <div class="list-group list-group-flush">
+                
+                <div class="sidebar-label">Insights</div>
+                <a href="{% url 'health:health_dashboard' %}" class="list-group-item sidebar-item {% if 'dashboard' in request.path %}active{% endif %}">
+                    <i class="fas fa-chart-pie nav-icon"></i>Dashboard
+                </a>
+
+                <div class="sidebar-label">Livestock & Health</div>
+                <a href="{% url 'animals:animal_list' %}" class="list-group-item sidebar-item {% if 'animals' in request.path %}active{% endif %}">
+                    <i class="fas fa-horse nav-icon"></i>Animal Roster
+                </a>
+                <a href="{% url 'health:add_health_record' %}" class="list-group-item sidebar-item pulse-ai {% if 'add' in request.path and 'health' in request.path %}active{% endif %}">
+                    <i class="fas fa-microchip nav-icon"></i>AI Symptom Checker
+                </a>
+                
+                <a href="{% url 'breeding:breeding_list' %}" class="list-group-item sidebar-item {% if 'breeding' in request.path %}active{% endif %}">
+                    <i class="fas fa-dna nav-icon"></i>Breeding & Births
+                </a>
+
+                <div class="sidebar-label">Trade & Growth</div>
+                <a href="{% url 'health:record_weight' %}" class="list-group-item sidebar-item {% if 'weight' in request.path %}active{% endif %}">
+                    <i class="fas fa-scale-balanced nav-icon"></i>Growth Velocity
+                </a>
+                <a href="{% url 'reports:market_list' %}" class="list-group-item sidebar-item">
+                    <i class="fas fa-store nav-icon"></i>AgriMarket
+                </a>
+
+                <div class="sidebar-label">Operations</div>
+                <a href="{% url 'health:financial_reports' %}" class="list-group-item sidebar-item {% if 'financial' in request.path %}active{% endif %}">
+                    <i class="fas fa-file-invoice-dollar nav-icon"></i>Financials
+                </a>
+                <a href="{% url 'health:profile_page' %}" class="list-group-item sidebar-item">
+                    <i class="fas fa-id-card-alt nav-icon"></i>Farmer Profile
+                </a>
+                
+                <a href="{% url 'logout' %}" class="list-group-item sidebar-item text-danger mt-5 border-top bg-light">
+                    <i class="fas fa-power-off nav-icon"></i>Secure Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5 mt-2">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-4 shadow-sm mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-close sidebar on mobile after clicking a link
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const offcanvasElement = document.getElementById('sidebarMenu');
+                const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                if(bsOffcanvas) bsOffcanvas.hide();
+            });
+        });
+    </script>
+</body>
+</html>

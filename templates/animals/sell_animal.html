@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow border-warning">
+            <div class="card-header bg-warning text-dark py-3">
+                <h4 class="mb-0 fw-bold">💰 Finalize Sale: {{ animal.tag_number }}</h4>
+            </div>
+            <div class="card-body p-4 bg-light">
+                
+                <div class="alert alert-info border-info shadow-sm mb-4">
+                    <h6 class="fw-bold text-uppercase mb-2">Animal Summary</h6>
+                    <ul class="mb-0 list-unstyled">
+                        <li><strong>Species:</strong> {{ animal.species }}</li>
+                        <li><strong>Gender:</strong> {{ animal.gender }}</li>
+                        <li><strong>Days on Farm:</strong> {{ days_on_farm }} days</li>
+                    </ul>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Buyer / Market Name</label>
+                        <input type="text" name="buyer_name" class="form-control" placeholder="e.g., Nairobi Farmers Market, Hotel XYZ..." required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Sale Price (KES)</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold text-success border-success">KES</span>
+                            <input type="number" name="sale_price" class="form-control border-success" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-text text-muted">This will automatically be logged in your Financial Reports.</div>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'animal_detail' animal.id %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        <button type="submit" class="btn btn-success fw-bold px-4 shadow-sm">Confirm Sale</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

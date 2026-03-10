@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-warning py-4 text-center">
+                    <i class="fas fa-heart fa-3x mb-2 text-dark"></i>
+                    <h3 class="fw-bold mb-0 text-dark">Record New Mating</h3>
+                    <p class="text-dark small opacity-75 mb-0">AI-Powered Gestation Forecasting</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="{% url 'breeding:add_breeding' %}" id="mating-form">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select Mother (Female Only)</label>
+                            <select name="animal" id="animal-select" class="form-select form-select-lg border-2" required>
+                                <option value="">Select Animal...</option>
+                                {% for animal in animals %}
+                                    <option value="{{ animal.id }}">{{ animal.tag_number }} ({{ animal.species }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Mating Date</label>
+                                <input type="date" name="mating_date" id="mating-date" class="form-control border-2" required value="{{ today|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Sire / Father Tag</label>
+                                <input type="text" name="sire" class="form-control border-2" placeholder="Optional">
+                            </div>
+                        </div>
+
+                        <div id="ai-result-card" class="card bg-light border-info border-dashed rounded-4 mb-4 d-none">
+                            <div class="card-body text-center py-4">
+                                <div class="badge bg-info mb-2">AI PREDICTION RESULT</div>
+                                <h4 class="fw-bold text-primary mb-1" id="predicted-date-text">...</h4>
+                                <p class="text-muted small mb-0">Expected Gestation: <span id="gestation-days">0</span> days</p>
+                                <div class="mt-2 small text-success">
+                                    <i class="fas fa-shield-check me-1"></i> Confidence: <span id="confidence-text">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <button type="button" id="run-ai-btn" class="btn btn-warning btn-lg fw-bold py-3 rounded-pill shadow">
+                                <i class="fas fa-magic me-2" id="ai-icon"></i>Run AI Prediction
+                            </button>
+                            
+                            <button type="submit" id="save-record-btn" class="btn btn-success btn-lg fw-bold py-3 rounded-pill shadow d-none">
+                                <i class="fas fa-save me-2"></i>Save Record
+                            </button>
+
+                            <a href="{% url 'breeding:breeding_list' %}" class="btn btn-link text-muted fw-bold text-decoration-none text-center">
+                                <i class="fas fa-times me-1"></i> Cancel and Return
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('run-ai-btn').addEventListener('click', function() {
+    const animalId = document.getElementById('animal-select').value;
+    const matingDate = document.getElementById('mating-date').value;
+    const btn = this;
+    const aiIcon = document.getElementById('ai-icon');
+
+    if (!animalId || !matingDate) {
+        alert("Please select an animal and mating date first!");
+        return;
+    }
+
+    // Start Loading State
+    btn.disabled = true;
+    aiIcon.className = "fas fa-spinner fa-spin me-2";
+    btn.innerText = "Consulting AI Models...";
+
+    // Use the namespaced AJAX URL
+    fetch(`{% url 'breeding:predict_gestation_api' %}?animal_id=${animalId}&mating_date=${matingDate}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                // Fill and Show Result
+                document.getElementById('predicted-date-text').innerText = data.formatted_date;
+                document.getElementById('gestation-days').innerText = data.days;
+                document.getElementById('confidence-text').innerText = data.confidence;
+                
+                document.getElementById('ai-result-card').classList.remove('d-none');
+                document.getElementById('save-record-btn').classList.remove('d-none');
+                
+                // Finalize Button
+                btn.classList.add('d-none');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("System error communicating with AI server.");
+        })
+        .finally(() => {
+            btn.disabled = false;
+            aiIcon.className = "fas fa-magic me-2";
+        });
+});
+</script>
+{% endblock %}

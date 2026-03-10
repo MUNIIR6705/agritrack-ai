@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h3 class="mb-0">Add Health Record</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-danger">Save Record</button>
+                    <a href="{% url 'health_dashboard' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const diagnosisField = document.getElementById('id_diagnosis');
+    const treatmentField = document.getElementById('id_treatment');
+    const symptomsField = document.getElementById('id_symptoms');
+    const animalField = document.getElementById('id_animal');
+
+    if(treatmentField && symptomsField) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm btn-outline-danger mb-2';
+        btn.innerHTML = '🔍 Search AgriTrack Knowledge Base';
+        treatmentField.parentNode.insertBefore(btn, treatmentField);
+
+        btn.addEventListener('click', function() {
+            const symptoms = symptomsField.value;
+            const animal_id = animalField.value;
+
+            if(!symptoms || !animal_id) {
+                alert("Please select an Animal and enter Symptoms first.");
+                return;
+            }
+
+            btn.innerHTML = '⏳ Searching...';
+
+            fetch("{% url 'suggest_treatment' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({symptoms: symptoms, animal_id: animal_id})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.diagnosis) diagnosisField.value = data.diagnosis;
+                if(data.treatment) treatmentField.value = data.treatment;
+                btn.innerHTML = '🔍 Search AgriTrack Knowledge Base';
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerHTML = '🔍 Search AgriTrack Knowledge Base';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h4 class="fw-bold mb-0">⚙️ Farm Settings</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Farm Name</label>
+                        <input type="text" name="farm_name" class="form-control" value="{{ profile.farm_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" value="{{ profile.phone_number }}">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

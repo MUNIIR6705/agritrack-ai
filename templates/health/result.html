@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="card shadow text-center">
+            <div class="card-header bg-primary text-white">
+                <h4>🤖 AI Diagnosis Result</h4>
+            </div>
+            <div class="card-body">
+                <h5 class="text-muted">Animal ID: {{ animal.tag_number }}</h5>
+                
+                <div class="alert alert-warning mt-3">
+                    <h2 class="fw-bold text-dark mb-0">{{ diagnosis }}</h2>
+                </div>
+                
+                <div class="card mt-4 border-success">
+                    <div class="card-header bg-success text-white fw-bold">
+                        💡 Recommended Remedy
+                    </div>
+                    <div class="card-body bg-light text-start">
+                        <p class="card-text lead" style="font-size: 1.1em;">
+                            {{ remedy }}
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="mt-4">
+                <p class="small text-muted">Symptoms Reported: "<em>{{ symptoms }}</em>"</p>
+                
+                <a href="/health/" class="btn btn-outline-primary mt-2">Check Another Animal</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load static %} {% block content %}
+<style>
+    :root {
+        --agri-dark: #004d3d; /* Forest Green */
+        --agri-primary: #00a651; /* Vibrant Growth Green */
+        --glass-bg: rgba(255, 255, 255, 0.92);
+    }
+
+    /* FULL PAGE BACKGROUND - USING YOUR PLANTATION IMAGE */
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                    url("{% static 'images/image_5fa659.png' %}"); /* Points to your static folder */
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed; /* Parallax scrolling effect */
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    /* HERO BANNER - SEMI-TRANSPARENT OVERLAY */
+    .hero-banner {
+        background: rgba(0, 77, 61, 0.88);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        padding: 50px 40px;
+        color: white;
+        margin-bottom: 35px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+    /* GLASS WEATHER WIDGET */
+    .glass-weather {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 20px;
+    }
+
+    .btn-agri-main {
+        background-color: var(--agri-primary);
+        color: white;
+        border-radius: 50px;
+        padding: 12px 28px;
+        font-weight: 700;
+        border: none;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+
+    .btn-agri-main:hover {
+        background-color: #ffffff;
+        color: var(--agri-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    /* STAT CARDS - FROSTED GLASS EFFECT */
+    .stat-card {
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 25px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        background: #ffffff;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+    /* TABLE CARD - FROSTED GLASS EFFECT */
+    .agri-table-card {
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .agri-table-card thead {
+        background-color: var(--agri-dark);
+        color: white;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+</style>
+
+<div class="container-fluid p-0">
+    <div class="hero-banner animate__animated animate__fadeIn">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 2px; color: #b2ff59;">Intelligence at Work</h6>
+                <h1 class="display-5 fw-bold mb-3">👋 Jambo, {{ user_name|default:request.user.username|title }}!</h1>
+                <p class="lead opacity-90 mb-4">Welcome back to your AgriTrack Hub. Your farm is looking vibrant today.</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'animals:add_animal' %}" class="btn btn-agri-main shadow">
+                        <i class="fas fa-plus me-2"></i>Register Animal
+                    </a>
+                    <a href="{% url 'health:add_transaction' %}" class="btn btn-outline-light rounded-pill px-4 fw-bold">
+                        <i class="fas fa-wallet me-2"></i>Log Sale
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="glass-weather d-flex align-items-center">
+                    <i class="fas fa-{{ weather.icon|default:'sun' }} fa-3x text-warning me-3"></i>
+                    <div>
+                        <h3 class="mb-0 fw-bold text-white">{{ weather.temp|default:"24" }}°C</h3>
+                        <p class="mb-0 small text-white opacity-75">{{ weather.recommendation|default:"Ideal weather for livestock monitoring." }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="icon-box bg-success bg-opacity-10 text-success">
+                    <i class="fas fa-paw fa-lg"></i>
+                </div>
+                <small class="text-muted fw-bold text-uppercase">Total Livestock</small>
+                <h2 class="fw-bold mb-0 text-dark">{{ total_livestock|default:"0" }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card border-bottom border-4 border-danger">
+                <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                    <i class="fas fa-heartbeat fa-lg"></i>
+                </div>
+                <small class="text-muted fw-bold text-uppercase">Health Alerts</small>
+                <h2 class="fw-bold mb-0 text-danger">{{ health_alerts|default:"0" }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                    <i class="fas fa-calendar-alt fa-lg"></i>
+                </div>
+                <small class="text-muted fw-bold text-uppercase">Expecting Mothers</small>
+                <h2 class="fw-bold mb-0 text-dark">{{ expecting_mothers|default:"0" }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-dark text-white shadow-lg">
+                <div class="icon-box bg-warning bg-opacity-20 text-warning">
+                    <i class="fas fa-coins fa-lg"></i>
+                </div>
+                <small class="text-white-50 fw-bold text-uppercase">Est. Farm Value</small>
+                <h2 class="fw-bold mb-0 text-warning">KES {{ total_farm_value|default:"0" }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="card agri-table-card shadow-sm mb-5">
+        <div class="card-header bg-transparent py-4 d-flex justify-content-between align-items-center border-0 px-4">
+            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-robot me-2 text-success"></i>Recent AI Disease Surveillance</h5>
+            <a href="{% url 'health:add_health_record' %}" class="btn btn-sm btn-light border px-3 fw-bold rounded-pill shadow-sm">New Analysis</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4 py-3">Logged At</th>
+                        <th>Animal ID</th>
+                        <th>Symptoms</th>
+                        <th class="text-end pe-4">AI Prediction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for search in recent_searches %}
+                    <tr>
+                        <td class="ps-4 text-muted small">{{ search.date_recorded|date:"M d, H:i" }}</td>
+                        <td><span class="badge bg-light text-dark border fw-bold">{{ search.animal.tag_number }}</span></td>
+                        <td class="text-muted">{{ search.symptoms|truncatechars:45 }}</td>
+                        <td class="text-end pe-4">
+                            {% if search.severity == 'High' or search.severity == 'Critical' %}
+                                <span class="badge bg-danger rounded-pill px-3 shadow-sm">{{ search.diagnosis }}</span>
+                            {% else %}
+                                <span class="badge bg-success-subtle text-success rounded-pill px-3">{{ search.diagnosis }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted italic">
+                            <i class="fas fa-check-circle text-success fa-2x mb-2 opacity-25"></i><br>
+                            All livestock are currently healthy.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center pb-5 pt-3">
+        <hr class="w-25 mx-auto mb-4 opacity-10">
+        <p class="text-white small fw-bold text-uppercase" style="letter-spacing: 3px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+            Engineered by <span class="text-white">Muniir and Co</span> &middot; Sowing Seeds of Sustainability
+        </p>
+    </div>
+</div>
+{% endblock %}

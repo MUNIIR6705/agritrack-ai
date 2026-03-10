@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h6 class="text-success fw-bold text-uppercase">Unique Electronic Profile (UEP)</h6>
+            <h1 class="display-5 fw-bold">{{ animal.uep_code }}</h1>
+            <p class="lead text-muted">Digital Health & Traceability Passport for Tag #{{ animal.tag_number }}</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <span class="badge {% if animal.status == 'Active' %}bg-success{% else %}bg-warning{% endif %} p-3 fs-6 rounded-pill">
+                Status: {{ animal.status }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0">Animal Specifications</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Species</span>
+                            <span class="fw-bold">{{ animal.species }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Breed</span>
+                            <span class="fw-bold">{{ animal.breed|default:"Standard" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Gender</span>
+                            <span class="fw-bold">{{ animal.gender }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Age</span>
+                            <span class="fw-bold">{{ animal.date_of_birth|timesince }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% if animal.qr_code %}
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4">
+                <img src="{{ animal.qr_code.url }}" class="img-fluid rounded mb-3" alt="UEP QR Code">
+                <p class="small text-muted mb-0">Scan to verify this digital passport on the AgriTrack AI network.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-4 p-4">
+                <h5 class="fw-bold mb-4"><i class="fas fa-chart-line text-success me-2"></i>Verified Growth History</h5>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date Recorded</th>
+                                <th>Weight (kg)</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in weight_history %}
+                            <tr>
+                                <td class="text-muted">{{ record.date_recorded }}</td>
+                                <td class="fw-bold">{{ record.weight }} kg</td>
+                                <td>{{ record.notes|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="text-center text-muted">No growth records found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold mb-4"><i class="fas fa-heartbeat text-danger me-2"></i>Medical & Vaccination Ledger</h5>
+                <div class="timeline-simple">
+                    {% for health in health_history %}
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0">{{ health.diagnosis }}</h6>
+                            <span class="badge {% if health.severity == 'Low' %}bg-info{% elif health.severity == 'Medium' %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ health.severity }} Risk
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-1">Symptoms: {{ health.symptoms }}</p>
+                        <p class="small text-dark mb-0"><strong>Treatment:</strong> {{ health.treatment }}</p>
+                        <small class="text-muted fst-italic">{{ health.date_recorded|date:"M d, Y" }}</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">This animal has a 100% clean health record.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

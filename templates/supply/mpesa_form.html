@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="card shadow col-md-6 mx-auto">
+        <div class="card-header bg-success text-white">
+            <h4>📲 Pay with M-Pesa</h4>
+        </div>
+        <div class="card-body">
+            <h5>Buying: <strong>{{ listing.animal.tag_number }}</strong></h5>
+            <h1 class="text-success fw-bold">KES {{ listing.price }}</h1>
+            <hr>
+            <form method="POST">
+                {% csrf_token %}
+                <label>Enter M-Pesa Phone Number:</label>
+                <input type="text" name="phone_number" class="form-control mb-3" placeholder="0712 345 678" required>
+                <button type="submit" class="btn btn-success w-100">Send Payment Request</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

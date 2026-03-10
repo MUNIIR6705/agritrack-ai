@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --agri-dark: #004d3d;
+        --agri-primary: #00a651;
+        --glass-bg: rgba(255, 255, 255, 0.92);
+    }
+
+    /* FULL PAGE PLANTATION BACKGROUND */
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                    url("{% static 'images/image_5fa659.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+
+    .profile-card {
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+
+    .form-label-custom {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--agri-dark);
+        font-weight: 800;
+    }
+
+    .input-group-text {
+        background-color: white !important;
+        border-right: none;
+        border-radius: 12px 0 0 12px !important;
+    }
+
+    .form-control {
+        border-left: none;
+        border-radius: 0 12px 12px 0 !important;
+        padding: 12px;
+    }
+
+    .btn-agri-update {
+        background-color: var(--agri-dark);
+        color: white;
+        border-radius: 50px;
+        padding: 12px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-agri-update:hover {
+        background-color: var(--agri-primary);
+        transform: translateY(-2px);
+        color: white;
+    }
+</style>
+
+<div class="row justify-content-center animate__animated animate__fadeIn">
+    <div class="col-md-6 col-lg-5">
+        <div class="card profile-card border-0 mt-4">
+            <div class="card-header bg-transparent py-4 border-bottom border-light text-center">
+                <div class="bg-success bg-opacity-10 d-inline-block rounded-circle p-3 mb-2">
+                    <h2 class="mb-0">👤</h2>
+                </div>
+                <h4 class="fw-bold mb-0 text-dark">My Farm Profile</h4>
+                <p class="text-muted small mb-0">Update your AgriTrack identification</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label form-label-custom mb-2">Farm Identity</label>
+                        <div class="input-group mb-3 shadow-sm">
+                            <span class="input-group-text">🏢</span>
+                            <input type="text" name="farm_name" class="form-control" 
+                                   value="{{ profile.farm_name }}" placeholder="Enter Farm Name" required>
+                        </div>
+                        
+                        <div class="input-group mb-3 shadow-sm">
+                            <span class="input-group-text">📍</span>
+                            <input type="text" name="location" class="form-control" 
+                                   value="{{ profile.location }}" placeholder="Farm Location (e.g. Kakamega)">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label form-label-custom mb-2">Contact Details</label>
+                        <div class="input-group mb-3 shadow-sm">
+                            <span class="input-group-text">📞</span>
+                            <input type="text" name="phone" class="form-control" 
+                                   value="{{ profile.phone_number }}" placeholder="Phone Number">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-agri-update fw-bold shadow-sm">
+                            Update Profile Information
+                        </button>
+                        <a href="{% url 'health:health_dashboard' %}" class="btn btn-outline-secondary py-2 rounded-pill small fw-bold">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mt-3 p-3 bg-white bg-opacity-75 rounded-4 backdrop-blur">
+            <div class="d-flex align-items-center">
+                <div class="bg-success text-white rounded-circle p-2 me-3 shadow-sm">
+                    <i class="fas fa-check-double small"></i>
+                </div>
+                <div>
+                    <p class="mb-0 fw-bold small text-dark">Data Verified</p>
+                    <p class="mb-0 text-muted extra-small" style="font-size: 0.7rem;">Secured within the AgriTrack AI Knowledge Base.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

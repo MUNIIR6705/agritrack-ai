@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">🩺 AI Health Scanner</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Select an animal and describe the symptoms. Our AI will analyze the potential disease and suggest treatment.
+                    </p>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                🔍 Run AI Diagnosis
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
