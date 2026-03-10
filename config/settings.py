@@ -1,25 +1,30 @@
 from pathlib import Path
 import os
-import dj_database_url  # Standard for 2026 Production deployments
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SECURITY ---
-# In production, this MUST be set in your environment variables
+# In production, this MUST be set in your Railway Environment Variables
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-key-replace-in-prod')
 
-# DEBUG should be False in production
+# DEBUG should be False in production (set DJANGO_DEBUG=False in Railway)
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-# Domains allowed for deployment - Added wildcard for dynamic cloud subdomains
+# Domains allowed for deployment
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost', 
     '.herokuapp.com', 
-    '.pythonanywhere.com', 
     '.railway.app', 
     '.ondigitalocean.app'
+]
+
+# CSRF Trusted Origins - Required for Django 4.0+ to allow M-Pesa callbacks/form submits
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.herokuapp.com'
 ]
 
 # --- APP DEFINITION ---
@@ -79,12 +84,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # --- DATABASE CONFIGURATION ---
-# Uses local MySQL if DATABASE_URL is not found (Development mode)
+# Railway provides DATABASE_URL. If not found, it falls back to local MySQL.
 DATABASES = {
     'default': dj_database_url.config(
         default='mysql://root:Ramakokha06!@127.0.0.1:3306/agritrack_db',
         conn_max_age=600,
-        ssl_require=not DEBUG # Require SSL for DB in production
+        # Railway's internal MySQL networking does not use SSL by default.
+        # Keeping this False prevents 'SSL connection error' during deployment.
+        ssl_require=False 
     )
 }
 
@@ -93,14 +100,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Production-ready static storage
+# Production-ready static storage with WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- AGRI-TRACK AI & EXTERNAL APIS ---
-# Always pull from OS Environment for safety
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyByribUmU7oMt95sCdiSnj2ajJ6f9nA6qg')
 GOOGLE_SEARCH_API_KEY = os.environ.get('GOOGLE_SEARCH_API_KEY', '')
 GOOGLE_SEARCH_CX = os.environ.get('GOOGLE_SEARCH_CX', '')
@@ -114,6 +120,7 @@ MPESA_ENVIRONMENT = 'sandbox'
 
 # --- PRODUCTION SECURITY SETTINGS ---
 if not DEBUG:
+    # Tell Django it's behind a proxy (Railway) so HTTPS works correctly
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
