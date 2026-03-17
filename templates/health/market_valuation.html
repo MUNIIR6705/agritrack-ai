@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid animate__animated animate__fadeIn">
+    <div class="mb-5">
+        <h6 class="text-uppercase fw-bold text-success" style="letter-spacing: 4px;">Supply Chain Sync</h6>
+        <h2 class="display-5 fw-bold text-white">Market Valuation Hub</h2>
+        <p class="lead text-white-50">Real-time economic yield analysis based on current March 2026 spot prices.</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="stat-card" style="background: rgba(178, 255, 89, 0.1) !important; border: 1px solid var(--glow-lime) !important;">
+                <div class="stat-label text-success"><i class="fa-solid fa-chart-line"></i> Total Farm Valuation</div>
+                <div class="stat-value">KES {{ total_valuation|floatformat:0 }}</div>
+                <small class="text-white-50">Aggregate Bio-Asset Worth</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label"><i class="fa-solid fa-piggy-bank"></i> Pork Rate</div>
+                <div class="stat-value text-white" style="font-size: 1.8rem;">KES {{ pork_rate }}/kg</div>
+                <small class="text-success fw-bold">▲ 1.4% Monthly Rise</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label"><i class="fa-solid fa-carrot"></i> Rabbit Rate</div>
+                <div class="stat-value text-white" style="font-size: 1.8rem;">KES {{ rabbit_rate }}/kg</div>
+                <small class="text-info fw-bold">Market Stable</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="agri-table-card mb-5">
+        <div class="p-4 border-bottom border-white border-opacity-10 bg-success bg-opacity-10">
+            <h5 class="mb-0 fw-bold text-white">
+                <i class="fa-solid fa-truck-fast me-2 text-success"></i> Market Ready Nodes
+                <span class="badge bg-success ms-2">{{ market_ready|length }} Ready</span>
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Asset Tag</th>
+                        <th>Species</th>
+                        <th>Current Mass</th>
+                        <th>Est. Yield</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for node in market_ready %}
+                    <tr>
+                        <td class="ps-4"><span class="badge bg-dark text-success border border-success">{{ node.animal.tag_number }}</span></td>
+                        <td>{{ node.animal.species }}</td>
+                        <td>{{ node.weight }} kg</td>
+                        <td class="fw-bold text-success">KES {{ node.valuation|floatformat:0 }}</td>
+                        <td class="text-end pe-4">
+                            <form id="sale-form-{{ node.animal.id }}" method="POST" action="{% url 'health:initiate_sale' node.animal.id %}" style="display: none;">
+                                {% csrf_token %}
+                                <input type="hidden" name="buyer_phone" id="buyer-phone-{{ node.animal.id }}">
+                            </form>
+
+                            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm" 
+                                    onclick="triggerMpesaSale('{{ node.animal.id }}', '{{ node.animal.tag_number }}', '{{ node.valuation }}')">
+                                Initiate Sale
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-4 text-muted">No nodes currently meet supply chain maturity thresholds.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="agri-table-card">
+        <div class="p-4 border-bottom border-white border-opacity-10">
+            <h5 class="mb-0 fw-bold text-white"><i class="fa-solid fa-seedling me-2 text-info"></i> Growing Nodes (Velocity Tracking)</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Asset Tag</th>
+                        <th>Species</th>
+                        <th>Current Mass</th>
+                        <th>Current Worth</th>
+                        <th class="text-end pe-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for node in growing_nodes %}
+                    <tr>
+                        <td class="ps-4"><span class="badge bg-dark text-white border border-secondary">{{ node.animal.tag_number }}</span></td>
+                        <td>{{ node.animal.species }}</td>
+                        <td>{{ node.weight }} kg</td>
+                        <td>KES {{ node.valuation|floatformat:0 }}</td>
+                        <td class="text-end pe-4">
+                            <span class="badge bg-light text-dark fw-bold">GROWING</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function triggerMpesaSale(animalId, tag, amount) {
+        // Format amount with commas for the UI
+        const formattedAmount = Number(amount).toLocaleString('en-KE', { style: 'currency', currency: 'KES' });
+
+        Swal.fire({
+            title: 'Initiate Digital Sale',
+            html: `Send an automated M-Pesa payment request for <strong>Node ${tag}</strong>.<br><br>
+                   <h3 class="text-success fw-bold">${formattedAmount}</h3>`,
+            input: 'text',
+            inputPlaceholder: 'Enter Buyer\'s M-Pesa Number (e.g. 0712345678)',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fa-solid fa-mobile-screen"></i> Send STK Push',
+            background: '#fff',
+            color: '#000'
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                // If they enter a number, inject it into the hidden form and submit
+                document.getElementById(`buyer-phone-${animalId}`).value = result.value;
+                document.getElementById(`sale-form-${animalId}`).submit();
+                
+                // Show loading state so they don't click twice
+                Swal.fire({
+                    title: 'Contacting Safaricom...',
+                    text: 'Pushing payment prompt to buyer.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    }
+                });
+            } else if (result.isConfirmed && !result.value) {
+                Swal.fire('Required', 'You must enter a valid M-Pesa number.', 'warning');
+            }
+        });
+    }
+</script>
+{% endblock %}

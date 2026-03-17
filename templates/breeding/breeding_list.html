@@ -1,111 +1,212 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="container-fluid p-0">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+        --glow-lime: #b2ff59;
+        --deep-emerald: #001e14;
+        --glass-panel: rgba(0, 45, 34, 0.85);
+        --text-pearl: #f8fafc;
+        --table-text-dark: #1a202c; 
+    }
+
+    * { font-family: 'Lexend', sans-serif !important; }
+
+    /* 1. HEADER SECTION */
+    .breeding-header {
+        background: rgba(0, 61, 46, 0.4);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(178, 255, 89, 0.3);
+        border-radius: 35px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    }
+
+    /* 2. STAT CARDS */
+    .stat-card {
+        background: var(--glass-panel) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 28px;
+        padding: 25px;
+        transition: 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-5px); border-color: var(--glow-lime) !important; }
+
+    .stat-icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(178, 255, 89, 0.1);
+        color: var(--glow-lime);
+        border: 1px solid rgba(178, 255, 89, 0.2);
+    }
+
+    /* 3. TABLE VISIBILITY FIXES */
+    .breeding-table-card {
+        background: var(--glass-panel);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 30px;
+        overflow: hidden;
+        margin-top: 30px;
+    }
+
+    .table thead th {
+        background: rgba(0, 0, 0, 0.3);
+        color: var(--glow-lime) !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        font-size: 0.75rem;
+        padding: 22px;
+        border: none;
+    }
+
+    /* High contrast for rows */
+    .table tbody tr { background-color: #ffffff !important; }
+    .table tbody td {
+        padding: 18px 22px;
+        color: var(--table-text-dark) !important; 
+        font-weight: 600;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* 4. BUTTONS & BADGES */
+    .btn-emerald-add {
+        background-color: var(--deep-emerald);
+        color: var(--glow-lime);
+        border: 2px solid var(--glow-lime);
+        border-radius: 50px;
+        padding: 12px 28px;
+        font-weight: 800;
+        transition: 0.3s;
+    }
+    .btn-emerald-add:hover { 
+        background-color: var(--glow-lime); 
+        color: #001e14;
+        box-shadow: 0 0 20px rgba(178, 255, 89, 0.5);
+    }
+
+    .node-tag-badge {
+        background: #f1fcf4;
+        color: #008f45 !important;
+        border: 1px solid var(--glow-lime);
+        font-weight: 800;
+        padding: 5px 12px;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="container-fluid animate__animated animate__fadeIn">
+    <div class="breeding-header d-flex justify-content-between align-items-center">
         <div>
-            <h2 class="fw-bold text-dark mb-0">🧬 Breeding & Pregnancy Tracker</h2>
-            <p class="text-muted mb-0">AI-forecasted delivery dates for pigs and rabbits.</p>
+            <h6 class="text-uppercase fw-bold mb-2" style="letter-spacing: 4px; color: var(--glow-lime);">Biological Asset Management</h6>
+            <h1 class="display-5 fw-bold text-white mb-0">🧬 Pregnancy Tracker</h1>
+            <p class="lead opacity-75 mb-0" style="color: #cbd5e1;">AI-forecasted delivery dates for pigs and rabbits.</p>
         </div>
-        <a href="{% url 'breeding:add_breeding' %}" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm rounded-pill">
-            <i class="fas fa-plus-circle me-2"></i>Record New Mating
+        <a href="{% url 'breeding:add_breeding' %}" class="btn btn-emerald-add shadow-lg">
+            <i class="fa-solid fa-plus-circle me-2"></i>Record New Mating
         </a>
     </div>
 
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-3 bg-white">
+            <div class="stat-card">
                 <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-primary-subtle p-3 me-3">
-                        <i class="fas fa-baby-carriage text-primary"></i>
+                    <div class="stat-icon-box me-3">
+                        <i class="fa-solid fa-baby-carriage fa-lg"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0">{{ expecting_count }}</h4>
-                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Currently Pregnant</small>
+                        <h3 class="fw-bold mb-0 text-white">{{ expecting_count }}</h3>
+                        <small class="text-uppercase fw-bold" style="color: rgba(255,255,255,0.5); font-size: 0.7rem; letter-spacing: 1px;">Currently Pregnant</small>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-3 bg-white">
+            <div class="stat-card">
                 <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-success-subtle p-3 me-3">
-                        <i class="fas fa-check-double text-success"></i>
+                    <div class="stat-icon-box me-3" style="color: #ff5252; background: rgba(255,82,82,0.1); border-color: rgba(255,82,82,0.2);">
+                        <i class="fa-solid fa-bell fa-lg"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0">{{ overdue_count|default:"0" }}</h4>
-                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Overdue / Ready</small>
+                        <h3 class="fw-bold mb-0 text-white">{{ overdue_count|default:"0" }}</h3>
+                        <small class="text-uppercase fw-bold" style="color: #ff5252; font-size: 0.7rem; letter-spacing: 1px;">Overdue / Ready</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 fw-bold text-success"><i class="fas fa-calendar-alt me-2"></i>Active Gestation Records</h5>
+    <div class="breeding-table-card shadow-lg mb-5">
+        <div class="p-4 border-bottom border-white border-opacity-10">
+            <h5 class="mb-0 fw-bold text-white"><i class="fa-solid fa-calendar-check me-2 text-glow-lime" style="color: var(--glow-lime);"></i>Active Gestation Records</h5>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light small text-uppercase">
-                        <tr>
-                            <th class="ps-4">Mother (Animal)</th>
-                            <th>Mating Date</th>
-                            <th>AI Expected Delivery</th>
-                            <th>Sire (Father)</th>
-                            <th class="text-end pe-4">Action / Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in records %}
-                        <tr>
-                            <td class="ps-4">
-                                <span class="fw-bold text-dark">{{ record.mother.tag_number }}</span>
-                                <br><small class="text-muted">{{ record.mother.species|title }}</small>
-                            </td>
-                            <td>{{ record.mating_date|date:"M d, Y" }}</td>
-                            <td>
-                                <span class="fw-bold text-primary">{{ record.expected_delivery|date:"M d, Y" }}</span>
-                                <br><small class="text-muted small">AI Forecasted</small>
-                            </td>
-                            <td>{{ record.father_tag|default:"-" }}</td>
-                            <td class="text-end pe-4">
-                                {% if record.status == 'Pregnant' %}
-                                    <div class="d-flex justify-content-end align-items-center">
-                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm me-2">
-                                            <i class="fas fa-hourglass-half me-1"></i> Expecting
-                                        </span>
-                                        <a href="{% url 'breeding:mark_delivered' record.id %}" class="btn btn-sm btn-outline-success rounded-pill">
-                                            <i class="fas fa-check"></i>
-                                        </a>
-                                    </div>
-                                {% elif record.status == 'Delivered' %}
-                                    <span class="badge bg-success rounded-pill px-3 py-2">
-                                        <i class="fas fa-check-circle me-1"></i> Delivered
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Mother Node</th>
+                        <th>Mating Date</th>
+                        <th>AI Expected Delivery</th>
+                        <th>Sire (Father)</th>
+                        <th class="text-end pe-4">Status / Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td class="ps-4">
+                            <span class="node-tag-badge">{{ record.mother.tag_number }}</span>
+                            <div class="small opacity-75 mt-1">{{ record.mother.species|title }}</div>
+                        </td>
+                        <td>{{ record.mating_date|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="fw-bold text-primary">{{ record.expected_delivery|date:"M d, Y" }}</div>
+                            <small class="opacity-50">Precision AI Forecast</small>
+                        </td>
+                        <td class="fw-bold">{{ record.father_tag|default:"-" }}</td>
+                        <td class="text-end pe-4">
+                            {% if record.status == 'Pregnant' %}
+                                <div class="d-flex justify-content-end align-items-center">
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm me-2">
+                                        <i class="fa-solid fa-hourglass-half me-1"></i> EXPECTING
                                     </span>
-                                {% else %}
-                                    <span class="badge bg-danger rounded-pill px-3 py-2">Failed</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
-                                <p>No breeding records found. Log a mating event to begin AI tracking.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                    <a href="{% url 'breeding:mark_delivered' record.id %}" class="btn btn-sm btn-outline-success rounded-circle" title="Mark as Delivered">
+                                        <i class="fa-solid fa-check"></i>
+                                    </a>
+                                </div>
+                            {% elif record.status == 'Delivered' %}
+                                <span class="badge bg-success rounded-pill px-3 py-2 fw-bold text-dark">
+                                    <i class="fa-solid fa-circle-check me-1"></i> DELIVERED
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger rounded-pill px-3 py-2 fw-bold">FAILED</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fa-solid fa-folder-open fa-3x mb-3 opacity-25 text-white"></i>
+                            <p class="text-white opacity-50">No active gestation telemetry found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
     <div class="mt-4 mb-5">
-        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
-            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        <a href="{% url 'health:health_dashboard' %}" class="btn btn-outline-light rounded-pill px-4">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Command Dashboard
         </a>
     </div>
 </div>

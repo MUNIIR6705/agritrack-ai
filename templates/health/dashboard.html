@@ -1,224 +1,357 @@
 {% extends "base.html" %}
-{% load static %} {% block content %}
+{% load static %} 
+
+{% block content %}
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap');
+
     :root {
-        --agri-dark: #004d3d; /* Forest Green */
-        --agri-primary: #00a651; /* Vibrant Growth Green */
-        --glass-bg: rgba(255, 255, 255, 0.92);
+        --glow-lime: #b2ff59;
+        --deep-emerald: #001e14;
+        --glass-panel: rgba(0, 45, 34, 0.85);
+        --text-pearl: #f8fafc;
+        --table-text-dark: #1a202c; 
     }
 
-    /* FULL PAGE BACKGROUND - USING YOUR PLANTATION IMAGE */
-    body {
-        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-                    url("{% static 'images/image_5fa659.png' %}"); /* Points to your static folder */
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed; /* Parallax scrolling effect */
-        min-height: 100vh;
-        margin: 0;
-    }
+    * { font-family: 'Lexend', sans-serif !important; }
 
-    /* HERO BANNER - SEMI-TRANSPARENT OVERLAY */
+    /* 1. HERO BANNER */
     .hero-banner {
-        background: rgba(0, 77, 61, 0.88);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 24px;
-        padding: 50px 40px;
-        color: white;
+        background: rgba(0, 61, 46, 0.4);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(178, 255, 89, 0.3);
+        border-radius: 35px;
+        padding: 45px;
         margin-bottom: 35px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.5);
     }
 
-    /* GLASS WEATHER WIDGET */
-    .glass-weather {
-        background: rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.25);
+    /* 2. PRECISION CLOCK & TELEMETRY WIDGET */
+    .telemetry-box {
+        background: rgba(0,0,0,0.3); 
+        border: 1px solid rgba(178, 255, 89, 0.2); 
+        padding: 25px;
         border-radius: 20px;
+        display: inline-block; 
+        text-align: left; 
+        min-width: 280px;
+    }
+
+    #liveClock {
+        font-family: 'Courier New', monospace;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px rgba(178, 255, 89, 0.5);
+    }
+
+    .sync-pulse {
+        height: 8px; width: 8px;
+        background-color: var(--glow-lime);
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 0 10px var(--glow-lime);
+        animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.2); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* 3. STAT CARDS */
+    .stat-card {
+        background: var(--glass-panel) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 28px;
+        padding: 30px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .stat-card:hover { transform: translateY(-10px); border-color: var(--glow-lime) !important; }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-label i { color: var(--glow-lime) !important; font-size: 1.1rem; }
+
+    .stat-value {
+        color: var(--glow-lime);
+        font-weight: 800;
+        font-size: 2.8rem;
+        text-shadow: 0 0 25px rgba(178, 255, 89, 0.4);
+    }
+
+    /* 4. WIDGETS */
+    .widget-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
         padding: 20px;
     }
 
-    .btn-agri-main {
-        background-color: var(--agri-primary);
-        color: white;
-        border-radius: 50px;
-        padding: 12px 28px;
-        font-weight: 700;
-        border: none;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 1px;
-    }
+    .ai-sentinel { border-left: 8px solid #ff5252; }
+    .feed-velocity { border-left: 8px solid #40c4ff; }
 
-    .btn-agri-main:hover {
-        background-color: #ffffff;
-        color: var(--agri-dark);
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-
-    /* STAT CARDS - FROSTED GLASS EFFECT */
-    .stat-card {
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        padding: 25px;
-        background: var(--glass-bg);
+    /* 5. ZERO-STATE WELCOME PANEL */
+    .welcome-node-card {
+        background: linear-gradient(145deg, rgba(178, 255, 89, 0.05), rgba(0, 30, 20, 0.4));
+        border: 2px dashed rgba(178, 255, 89, 0.3);
+        border-radius: 40px;
+        padding: 80px 40px;
+        text-align: center;
         backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     }
 
-    .stat-card:hover {
-        transform: translateY(-8px);
-        background: #ffffff;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    .pulse-icon {
+        font-size: 5rem;
+        color: var(--glow-lime);
+        margin-bottom: 25px;
+        animation: pulse-glow 2s infinite;
     }
 
-    .icon-box {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 15px;
+    @keyframes pulse-glow {
+        0% { transform: scale(1); text-shadow: 0 0 0px rgba(178, 255, 89, 0); }
+        50% { transform: scale(1.05); text-shadow: 0 0 30px rgba(178, 255, 89, 0.6); }
+        100% { transform: scale(1); text-shadow: 0 0 0px rgba(178, 255, 89, 0); }
     }
 
-    /* TABLE CARD - FROSTED GLASS EFFECT */
+    /* 6. TABLE FIX */
     .agri-table-card {
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
+        background: var(--glass-panel);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 30px;
         overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        margin-top: 35px;
     }
 
-    .agri-table-card thead {
-        background-color: var(--agri-dark);
-        color: white;
+    .table thead th {
+        background: rgba(0, 0, 0, 0.4);
+        color: var(--glow-lime) !important;
         text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
+        font-weight: 800;
+        padding: 22px;
+        border: none;
     }
+
+    .table tbody tr { background-color: #ffffff !important; }
+
+    .table tbody td {
+        padding: 18px 22px;
+        color: var(--table-text-dark) !important;
+        font-weight: 600;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .btn-agri-main {
+        background-color: var(--deep-emerald);
+        color: var(--glow-lime);
+        border: 2px solid var(--glow-lime);
+        border-radius: 50px;
+        padding: 15px 35px;
+        font-weight: 800;
+        transition: 0.3s;
+    }
+
+    .btn-agri-main:hover { background-color: var(--glow-lime); color: #001e14; box-shadow: 0 0 30px rgba(178, 255, 89, 0.5); }
 </style>
 
-<div class="container-fluid p-0">
-    <div class="hero-banner animate__animated animate__fadeIn">
+<div class="container-fluid animate__animated animate__fadeIn">
+    
+    <div class="hero-banner">
         <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 2px; color: #b2ff59;">Intelligence at Work</h6>
-                <h1 class="display-5 fw-bold mb-3">👋 Jambo, {{ user_name|default:request.user.username|title }}!</h1>
-                <p class="lead opacity-90 mb-4">Welcome back to your AgriTrack Hub. Your farm is looking vibrant today.</p>
-                <div class="d-flex gap-3">
-                    <a href="{% url 'animals:add_animal' %}" class="btn btn-agri-main shadow">
-                        <i class="fas fa-plus me-2"></i>Register Animal
-                    </a>
-                    <a href="{% url 'health:add_transaction' %}" class="btn btn-outline-light rounded-pill px-4 fw-bold">
-                        <i class="fas fa-wallet me-2"></i>Log Sale
+            <div class="col-lg-7">
+                <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 4px; color: var(--glow-lime);">Precision Node Active</h6>
+                <h1 class="display-5 mb-3 text-white">👋 Jambo, {{ user_name|default:user.username }}!</h1>
+                <p class="lead" style="color: #cbd5e1;">
+                    {% if has_animals %}
+                        Monitoring <strong>{{ total_livestock }}</strong> assets in your synchronized network.
+                    {% else %}
+                        Your Identity Node is active. Awaiting first bio-asset registration.
+                    {% endif %}
+                </p>
+                {% if not has_animals %}
+                <div class="mt-4">
+                    <a href="{% url 'animals:add_animal' %}" class="btn btn-agri-main shadow-lg">
+                        <i class="fa-solid fa-plus-circle me-2"></i>Initialize Node
                     </a>
                 </div>
+                {% endif %}
             </div>
-            <div class="col-lg-4 mt-4 mt-lg-0">
-                <div class="glass-weather d-flex align-items-center">
-                    <i class="fas fa-{{ weather.icon|default:'sun' }} fa-3x text-warning me-3"></i>
-                    <div>
-                        <h3 class="mb-0 fw-bold text-white">{{ weather.temp|default:"24" }}°C</h3>
-                        <p class="mb-0 small text-white opacity-75">{{ weather.recommendation|default:"Ideal weather for livestock monitoring." }}</p>
+
+            <div class="col-lg-5 text-lg-end">
+                <div class="telemetry-box">
+                    <div class="mb-3 border-bottom border-white border-opacity-10 pb-2">
+                        <small class="stat-label text-uppercase" style="font-size: 0.6rem; opacity: 0.7;">
+                            <i class="fa-solid fa-clock"></i> Node Time (EAT)
+                        </small>
+                        <div id="liveClock" class="h4 mb-0 fw-bold text-white">00:00:00</div>
+                    </div>
+
+                    <small class="stat-label mb-1 text-uppercase" style="font-size: 0.65rem;">
+                        <i class="fa-solid fa-satellite-dish"></i> Environmental Telemetry
+                    </small>
+                    <div class="d-flex align-items-center justify-content-between mt-1">
+                        <span class="h2 mb-0 fw-bold" style="color: var(--glow-lime);">
+                            {% if weather.temp %}{{ weather.temp }}&deg;C{% else %}24&deg;C{% endif %}
+                        </span>
+                        <span class="badge bg-success bg-opacity-20 text-white border border-success ms-3" style="font-size: 0.7rem;">
+                            <span class="sync-pulse"></span>Identity Verified
+                        </span>
+                    </div>
+                    <div class="mt-2 text-white-50 small fw-bold">
+                        <i class="fa-solid fa-location-dot text-success me-1"></i> {{ weather.location|default:"Nairobi Sector, KE" }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="icon-box bg-success bg-opacity-10 text-success">
-                    <i class="fas fa-paw fa-lg"></i>
+    {% if not has_animals %}
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="welcome-node-card animate__animated animate__fadeInUp">
+                    <div class="pulse-icon">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <h2 class="text-white display-6 fw-bold mb-3">Initialize Your Farm Network</h2>
+                    <p class="text-white-50 lead mb-5 px-md-5">
+                        Welcome to AgriTrack AI. To begin monitoring biological telemetry and economic velocity, 
+                        you need to register your first livestock node.
+                    </p>
+                    <div class="d-flex justify-content-center gap-4">
+                        <a href="{% url 'animals:add_animal' %}" class="btn btn-agri-main btn-lg shadow-lg">
+                            <i class="fa-solid fa-plus-circle me-2"></i>Register First Animal
+                        </a>
+                        <a href="{% url 'health:profile_page' %}" class="btn btn-outline-light rounded-pill px-5 fw-bold">
+                            <i class="fa-solid fa-user-gear me-2"></i>Profile Node
+                        </a>
+                    </div>
                 </div>
-                <small class="text-muted fw-bold text-uppercase">Total Livestock</small>
-                <h2 class="fw-bold mb-0 text-dark">{{ total_livestock|default:"0" }}</h2>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card border-bottom border-4 border-danger">
-                <div class="icon-box bg-danger bg-opacity-10 text-danger">
-                    <i class="fas fa-heartbeat fa-lg"></i>
-                </div>
-                <small class="text-muted fw-bold text-uppercase">Health Alerts</small>
-                <h2 class="fw-bold mb-0 text-danger">{{ health_alerts|default:"0" }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="icon-box bg-primary bg-opacity-10 text-primary">
-                    <i class="fas fa-calendar-alt fa-lg"></i>
-                </div>
-                <small class="text-muted fw-bold text-uppercase">Expecting Mothers</small>
-                <h2 class="fw-bold mb-0 text-dark">{{ expecting_mothers|default:"0" }}</h2>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card bg-dark text-white shadow-lg">
-                <div class="icon-box bg-warning bg-opacity-20 text-warning">
-                    <i class="fas fa-coins fa-lg"></i>
-                </div>
-                <small class="text-white-50 fw-bold text-uppercase">Est. Farm Value</small>
-                <h2 class="fw-bold mb-0 text-warning">KES {{ total_farm_value|default:"0" }}</h2>
-            </div>
-        </div>
-    </div>
-
-    <div class="card agri-table-card shadow-sm mb-5">
-        <div class="card-header bg-transparent py-4 d-flex justify-content-between align-items-center border-0 px-4">
-            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-robot me-2 text-success"></i>Recent AI Disease Surveillance</h5>
-            <a href="{% url 'health:add_health_record' %}" class="btn btn-sm btn-light border px-3 fw-bold rounded-pill shadow-sm">New Analysis</a>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-4 py-3">Logged At</th>
-                        <th>Animal ID</th>
-                        <th>Symptoms</th>
-                        <th class="text-end pe-4">AI Prediction</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for search in recent_searches %}
-                    <tr>
-                        <td class="ps-4 text-muted small">{{ search.date_recorded|date:"M d, H:i" }}</td>
-                        <td><span class="badge bg-light text-dark border fw-bold">{{ search.animal.tag_number }}</span></td>
-                        <td class="text-muted">{{ search.symptoms|truncatechars:45 }}</td>
-                        <td class="text-end pe-4">
-                            {% if search.severity == 'High' or search.severity == 'Critical' %}
-                                <span class="badge bg-danger rounded-pill px-3 shadow-sm">{{ search.diagnosis }}</span>
+    {% else %}
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="widget-card ai-sentinel d-flex align-items-center h-100">
+                    <div class="rounded-circle p-3 me-3" style="background: rgba(255, 82, 82, 0.1);">
+                        <i class="fa-robot fa-solid fa-lg" style="color: #ff5252;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold text-white mb-1">AI Sentinel Health Risk</h6>
+                            <span class="badge {% if health_alerts > 0 %}bg-danger{% else %}bg-success{% endif %} rounded-pill">
+                                {% if health_alerts > 0 %}Alert Active{% else %}Stable{% endif %}
+                            </span>
+                        </div>
+                        <p class="text-white-50 small mb-0">
+                            {% if health_alerts > 0 %}
+                                Critical bio-markers detected in {{ health_alerts }} nodes.
                             {% else %}
-                                <span class="badge bg-success-subtle text-success rounded-pill px-3">{{ search.diagnosis }}</span>
+                                All synchronized nodes are operating within normal biological parameters.
                             {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center py-5 text-muted italic">
-                            <i class="fas fa-check-circle text-success fa-2x mb-2 opacity-25"></i><br>
-                            All livestock are currently healthy.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="widget-card feed-velocity h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-white mb-0"><i class="fa-solid fa-chart-pie me-2 text-info"></i>Farm Economic Profit</h6>
+                        <span class="fw-bold text-info">KES {{ profit|default:"0" }}</span>
+                    </div>
+                    <div class="progress" style="height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div class="progress-bar bg-info" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="text-center pb-5 pt-3">
-        <hr class="w-25 mx-auto mb-4 opacity-10">
-        <p class="text-white small fw-bold text-uppercase" style="letter-spacing: 3px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-            Engineered by <span class="text-white">Muniir and Co</span> &middot; Sowing Seeds of Sustainability
-        </p>
-    </div>
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fa-solid fa-cow"></i> Total Livestock</div>
+                    <div class="stat-value">{{ total_livestock }}</div>
+                    <small style="color: var(--glow-lime); opacity: 0.6;">Active Network Nodes</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fa-solid fa-bell"></i> Health Alerts</div>
+                    <div class="stat-value" style="color: #ff5252;">{{ health_alerts }}</div>
+                    <small class="text-danger" style="opacity: 0.6;">Action Required</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fa-solid fa-sack-dollar"></i> Farm Value (KES)</div>
+                    <div class="stat-value" style="color: #40c4ff;">{{ total_farm_value|floatformat:0 }}</div>
+                    <small class="text-info" style="opacity: 0.6;">Estimated Value</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="agri-table-card">
+            <div class="p-4 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-white"><i class="fa-solid fa-database me-2" style="color: var(--glow-lime);"></i>Recent Diagnostic Logs</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Date Recorded</th>
+                            <th>Node Tag</th>
+                            <th>AI Diagnosis Summary</th>
+                            <th class="text-end pe-4">Severity Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for search in recent_searches %}
+                        <tr>
+                            <td class="ps-4">{{ search.date_recorded|date:"M d, H:i" }}</td>
+                            <td><span class="badge bg-dark text-success border border-success">{{ search.animal.tag_number }}</span></td>
+                            <td>{{ search.diagnosis|truncatechars:60 }}</td>
+                            <td class="text-end pe-4">
+                                <span class="badge {% if search.severity == 'High' or search.severity == 'Medium' %}bg-danger{% else %}bg-success{% endif %} p-2 px-3 fw-bold">
+                                    {{ search.severity|upper }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">No diagnostic telemetry recorded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const options = { 
+            hour: '2-digit', minute: '2-digit', second: '2-digit', 
+            hour12: false, timeZone: 'Africa/Nairobi' 
+        };
+        const timeString = now.toLocaleTimeString('en-GB', options);
+        const clockElement = document.getElementById('liveClock');
+        if (clockElement) {
+            clockElement.textContent = timeString;
+        }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
 {% endblock %}

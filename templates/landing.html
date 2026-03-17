@@ -2,73 +2,211 @@
 {% load static %}
 
 {% block content %}
-<section class="py-5 text-center text-white" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{% static 'images/farm_hero.jpg' %}'); background-size: cover; background-position: center; min-height: 80vh; display: flex; align-items: center;">
-    <div class="container">
-        <h6 class="text-uppercase fw-bold mb-3" style="letter-spacing: 3px; color: #b2ff59;">Future of Precision Farming</h6>
-        <h1 class="display-2 fw-bold mb-4">AI-Powered Livestock <br>Traceability & Health</h1>
-        <p class="lead mb-5 px-md-5">AgriTrack AI bridges the gap between smallholder farmers and commercial supply chains using Gemini 1.5 Pro diagnostics and Unique Electronic Profiles.</p>
-        <div class="d-flex justify-content-center gap-3">
-            <a href="{% url 'users:register' %}" class="btn btn-success btn-lg rounded-pill px-5 fw-bold">Get Started</a>
-            <a href="#features" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold">Learn More</a>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&display=swap');
+
+    /* 1. RESET OUTER CONTAINER */
+    .glass-container {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    /* 2. THE MAIN PANEL: Midnight Emerald Glass */
+    .unified-glass-pane {
+        /* A deep, rich dark green with high opacity for visibility */
+        background: rgba(0, 30, 20, 0.95); 
+        backdrop-filter: blur(30px);
+        border-radius: 40px;
+        padding: 50px;
+        margin: 20px 0;
+        box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8);
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 50px;
+        align-items: flex-start;
+        min-height: 85vh;
+        font-family: 'Lexend', sans-serif;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* 3. SCROLLABLE CONTENT AREA */
+    .info-content {
+        height: 75vh;
+        overflow-y: auto;
+        padding-right: 30px;
+    }
+
+    /* 4. MULTI-COLOR CONTENT BOXES (Dark Mode Optimized) */
+    
+    /* Emerald/Green: Biosecurity */
+    .section-dark-green {
+        background: rgba(5, 150, 105, 0.15);
+        border-left: 8px solid #b2ff59;
+        padding: 30px;
+        border-radius: 24px;
+        margin-bottom: 30px;
+    }
+    .section-dark-green h3 { color: #b2ff59; font-weight: 800; }
+    .section-dark-green p { color: #e2e8f0 !important; line-height: 1.7; }
+
+    /* Royal Blue: Traceability */
+    .section-dark-blue {
+        background: rgba(59, 130, 246, 0.15);
+        border-left: 8px solid #60a5fa;
+        padding: 30px;
+        border-radius: 24px;
+        margin-bottom: 30px;
+    }
+    .section-dark-blue h3 { color: #60a5fa; font-weight: 800; }
+    .section-dark-blue p { color: #e2e8f0 !important; line-height: 1.7; }
+
+    /* Gold/Amber: Economics */
+    .section-dark-amber {
+        background: rgba(245, 158, 11, 0.15);
+        border-left: 8px solid #fbbf24;
+        padding: 30px;
+        border-radius: 24px;
+        margin-bottom: 30px;
+    }
+    .section-dark-amber h3 { color: #fbbf24; font-weight: 800; }
+    .section-dark-amber p { color: #e2e8f0 !important; line-height: 1.7; }
+
+    /* 5. TYPOGRAPHY */
+    .main-header {
+        font-weight: 800;
+        color: #ffffff;
+        font-size: 3.2rem;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+    }
+    .text-lime { color: #b2ff59; }
+
+    /* 6. LOGIN CARD: High Contrast White */
+    .login-card-elevated {
+        background: #ffffff;
+        border-radius: 35px;
+        padding: 45px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+        position: sticky;
+        top: 20px;
+    }
+
+    .input-pill {
+        background: #f8fafc !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        padding: 16px 20px !important;
+        color: #0f172a !important;
+        font-weight: 600;
+    }
+
+    .btn-emerald {
+        background: #003d2e;
+        color: #b2ff59;
+        font-weight: 800;
+        padding: 18px;
+        border-radius: 16px;
+        border: 2px solid #b2ff59;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .btn-emerald:hover {
+        background: #b2ff59;
+        color: #003d2e;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(178, 255, 89, 0.3);
+    }
+
+    /* Scrollbar */
+    .info-content::-webkit-scrollbar { width: 6px; }
+    .info-content::-webkit-scrollbar-thumb { background: #b2ff59; border-radius: 10px; }
+
+    @media (max-width: 991px) {
+        .unified-glass-pane { grid-template-columns: 1fr; padding: 30px; }
+        .info-content { height: auto; overflow: visible; padding-right: 0; }
+    }
+</style>
+
+<div class="unified-glass-pane animate__animated animate__fadeIn">
+    
+    <div class="info-content">
+        <h6 class="text-uppercase fw-bold text-lime mb-3" style="letter-spacing: 5px;">Intelligence System v2.0</h6>
+        <h1 class="main-header mb-4">The Future of <br><span class="text-lime">Precision Agriculture</span></h1>
+        <p class="lead mb-5" style="color: #cbd5e1 !important; font-size: 1.2rem;">
+            A high-intelligence ecosystem synchronizing real-time diagnostics with global commercial supply chains.
+        </p>
+
+        <div class="section-dark-green">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-microchip fa-2x me-3 text-lime"></i>
+                <h3 class="mb-0">Predictive AI Biosecurity</h3>
+            </div>
+            <p>
+                Integrated with our proprietary **AgriTrack Neural Engine**, our system analyzes physiological symptoms against local weather data. It detects humidity anomalies and temperature shifts in your region, triggering **Bio-Safety alerts** 48 hours before environmental stress causes a disease outbreak.
+            </p>
+        </div>
+
+        <div class="section-dark-blue">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-fingerprint fa-2x me-3 text-info"></i>
+                <h3 class="mb-0">Digital Passport (UEP)</h3>
+            </div>
+            <p>
+                Every animal carries a **Unique Electronic Profile**. This immutable ledger logs vaccination sequences, weight velocity, and genetic lineage. This transparency creates the **"Commercial Trust"** required to sell directly into SEZs and high-end export markets.
+            </p>
+        </div>
+
+        <div class="section-dark-amber">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-chart-line fa-2x me-3 text-warning"></i>
+                <h3 class="mb-0">Profit Optimization</h3>
+            </div>
+            <p>
+                Stop losing money on over-matured livestock. AgriTrack AI calculates the **Average Daily Gain (ADG)** and alerts you when your animal reaches its **"Economic Sweet Spot"**—the day its market value peaks relative to total feed investment.
+            </p>
         </div>
     </div>
-</section>
 
-<section id="features" class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Three Pillars of AgriTrack AI</h2>
-            <div class="mx-auto bg-success" style="height: 4px; width: 60px;"></div>
+    <div class="auth-panel">
+        <div class="login-card-elevated">
+            <div class="text-center mb-5">
+                <div class="bg-dark p-4 d-inline-block rounded-circle mb-3">
+                    <i class="fas fa-user-shield text-lime fa-3x"></i>
+                </div>
+                <h2 class="fw-bold" style="color: #0f172a; letter-spacing: -1px;">Farmer Access</h2>
+                <p class="text-muted">Securely manage your assets</p>
+            </div>
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Username</label>
+                    <input type="text" name="username" class="form-control input-pill" placeholder="Enter ID" required>
+                </div>
+                <div class="mb-5">
+                    <label class="form-label fw-bold text-dark small text-uppercase">Security Password</label>
+                    <input type="password" name="password" class="form-control input-pill" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn btn-emerald w-100 shadow-lg">
+                    LOG INTO SYSTEM <i class="fas fa-chevron-right ms-2"></i>
+                </button>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted mb-0">Don't have a Farm Profile?</p>
+                    <a href="{% url 'register' %}" class="fw-bold text-dark text-decoration-none">Initialize New Farm Unit</a>
+                </div>
+            </form>
         </div>
         
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4">
-                    <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
-                        <i class="fas fa-microscope text-success fa-2x"></i>
-                    </div>
-                    <h4 class="fw-bold">Risk Engine</h4>
-                    <p class="text-muted">Early detection classification engine for symptoms using pharmacological drug prescriptions. Identify outbreaks before they spread.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4">
-                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
-                        <i class="fas fa-qrcode text-primary fa-2x"></i>
-                    </div>
-                    <h4 class="fw-bold">Digital Passport</h4>
-                    <p class="text-muted">Unique Electronic Profiles (UEP) for every animal. A permanent digital history of weights, vaccinations, and growth curves.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4">
-                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
-                        <i class="fas fa-sync text-warning fa-2x"></i>
-                    </div>
-                    <h4 class="fw-bold">Supply Sync</h4>
-                    <p class="text-muted">Direct synchronization with commercial buyers. Automated "Market Readiness" alerts based on real-time weight data.</p>
-                </div>
-            </div>
+        <div class="text-center mt-4">
+            <span class="badge bg-white bg-opacity-10 text-white-50 p-2 px-3 border border-white border-opacity-10">
+                <i class="fas fa-shield-alt me-1 text-lime"></i> 256-Bit Encrypted Data Environment
+            </span>
         </div>
     </div>
-</section>
-
-<section class="py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">Bridging the Commercial Divide</h2>
-                <p class="text-muted mb-4">Hotels and SEZs require verified healthy stock. AgriTrack AI provides the transparency they need through our digital ledger, ensuring Mary’s farm meets international supply standards.</p>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Verified Weight History</li>
-                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> AI-Cleared Health Screening</li>
-                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> M-Pesa Automated Payments</li>
-                </ul>
-            </div>
-            <div class="col-lg-6">
-                
-            </div>
-        </div>
-    </div>
-</section>
+</div>
 {% endblock %}

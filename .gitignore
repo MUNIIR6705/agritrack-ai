@@ -1,0 +1,28 @@
+# --- ENVIRONMENT VARIABLES (CRITICAL) ---
+.env
+.env.local
+.env.*
+
+# --- VIRTUAL ENVIRONMENTS ---
+venv/
+env/
+ENV/
+.venv/
+
+# --- PYTHON / DJANGO ---
+__pycache__/
+*.py[cod]
+*$py.class
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# --- OS / IDE FILES ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- LOGS ---
+*.log

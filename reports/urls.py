@@ -14,8 +14,12 @@ urlpatterns = [
     # URL: /reports/readiness/
     path('readiness/', views.market_readiness, name='market_readiness'),
     
-    # 3. The AgriMarket Hub
-    # This matches the 'Open AgriMarket' button link: {% url 'reports:market_list' %}
+    # 3. The AgriMarket Hub (Marketplace Listings)
     # URL: /reports/market/
     path('market/', views.market_view, name='market_list'),
+
+    # 4. Marketplace Hub (The New Targeted Destination)
+    # This matches the button link: {% url 'reports:marketplace_hub' %}
+    # URL: /reports/marketplace-hub/
+    path('marketplace-hub/', views.marketplace_hub_view, name='marketplace_hub'),
 ]

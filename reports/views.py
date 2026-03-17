@@ -30,12 +30,13 @@ def market_readiness(request):
     """
     AI-driven Supply Chain Synchronization.
     Combines Growth Predictions (ADG) with Live Market Valuation (KES).
+    Now includes Historical Trend Data for UI Visualization.
     """
     animals = Animal.objects.filter(owner=request.user, status='Active')
     predictions = [] 
     market_items = []
-    target_weight = 90.0
-    market_price_per_kg = 450 
+    target_weight = 90.0 # Target weight in KG for market readiness
+    market_price_per_kg = 450 # Current regional market rate
 
     for animal in animals:
         # 1. Logic for Growth Predictions (Last 2 records)
@@ -47,6 +48,7 @@ def market_readiness(request):
             days_diff = (latest.date_recorded - previous.date_recorded).days
             
             if days_diff > 0:
+                # ADG = (W2 - W1) / Days
                 adg = weight_diff / days_diff
                 weight_left = target_weight - float(latest.weight)
                 
@@ -69,6 +71,7 @@ def market_readiness(request):
                     'status': status
                 })
         else:
+             # Handle animals with only one weight record
              predictions.append({
                     'tag': animal.tag_number,
                     'species': animal.species,
@@ -85,26 +88,37 @@ def market_readiness(request):
             'species': animal.species,
             'weight': current_w,
             'valuation': float(current_w) * market_price_per_kg,
-            'status': 'Ready' if current_w >= target_weight else 'Growing'
+            'status': 'Ready' if float(current_w) >= target_weight else 'Growing'
         })
 
-    # Sort predictions: Ready first
+    # Sort predictions: Ready first, then by predicted date
     predictions.sort(key=lambda x: (0 if x['status'] == "Ready for Market" else 1, 
                                    x['predicted_date'] if isinstance(x['predicted_date'], datetime.date) else datetime.date.max))
+
+    # --- NEW: MARKET TREND DATA ---
+    # Simulated data for the Market Velocity Chart (KES/KG over 6 months)
+    market_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    pig_trend = [380, 410, 450, 440, 485, 500] # Prices for Pigs
+    rabbit_trend = [120, 150, 140, 185, 200, 215] # Prices for Rabbits
 
     return render(request, 'reports/market.html', {
         'predictions': predictions,
         'market_items': market_items,
         'target_weight': target_weight,
         'price_per_kg': market_price_per_kg,
-        'market_date': timezone.now()
+        'market_date': timezone.now(),
+        # Charting Context
+        'labels': market_labels,
+        'pig_prices': pig_trend,
+        'rabbit_prices': rabbit_trend,
     })
 
 @login_required
 def market_view(request):
-    """
-    Standalone AgriMarket Marketplace View.
-    Redirects or renders the same comprehensive market dashboard.
-    """
-    # Simply call market_readiness to keep data consistent across the Hub
+    """ Standalone AgriMarket Marketplace View. """
+    return market_readiness(request)
+
+@login_required
+def marketplace_hub_view(request):
+    """ The destination view for the 'Open Marketplace Hub' button. """
     return market_readiness(request)

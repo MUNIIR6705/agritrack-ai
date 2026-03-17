@@ -1,11 +1,20 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+<img id="agritrack-logo-img" src="{% static 'image/agritrack_logo.png' %}" style="display:none;" crossorigin="anonymous">
+
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-danger text-white py-3">
-                <h4 class="mb-0 fw-bold">🩺 Add Health Record & Symptoms</h4>
+        
+        <div class="card shadow-sm border-0 mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-danger text-white py-3 d-flex align-items-center justify-content-between">
+                <h4 class="mb-0 fw-bold"><i class="fa-solid fa-stethoscopes me-2"></i>Add Health Record & Symptoms</h4>
+                <span class="badge bg-white text-danger fw-bold border border-danger-subtle">AI Risk Engine v2.5</span>
             </div>
 
             <div class="card-body p-4">
@@ -13,12 +22,12 @@
                     {% csrf_token %}
                     
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-muted small text-uppercase">Select Animal</label>
+                        <label class="form-label fw-bold text-muted small text-uppercase">Select Animal Node</label>
                         <select id="animal-select" name="animal" class="form-select border-danger-subtle" required>
-                            <option value="" disabled selected>Choose an animal...</option>
+                            <option value="" disabled selected>Identify target bio-asset...</option>
                             {% for animal in animals %}
-                                <option value="{{ animal.id }}" data-species="{{ animal.species }}">
-                                    {{ animal.tag_number }} - {{ animal.species }}
+                                <option value="{{ animal.id }}" data-species="{{ animal.species }}" data-tag="{{ animal.tag_number }}" data-uep="{{ animal.uep_code }}">
+                                    {{ animal.tag_number }} - {{ animal.species }} (UEP: {{ animal.uep_code }})
                                 </option>
                             {% endfor %}
                         </select>
@@ -26,128 +35,439 @@
 
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-end mb-2">
-                            <label class="form-label fw-bold text-muted small text-uppercase mb-0">Symptoms Observed</label>
+                            <label class="form-label fw-bold text-muted small text-uppercase mb-0">Clinical Symptoms Observed</label>
                             <button type="button" id="ask-ai-btn" class="btn btn-sm btn-outline-danger fw-bold rounded-pill shadow-sm transition-all">
-                                ✨ Ask AgriTrack AI
+                                <i class="fa-solid fa-microchip me-1"></i> ✨ Ask AgriTrack AI
                             </button>
                         </div>
-                        <textarea id="symptoms-input" name="symptoms" class="form-control" rows="3" placeholder="e.g., Heavy coughing, not eating, shivering..." required></textarea>
+                        <textarea id="symptoms-input" name="symptoms" class="form-control" rows="3" placeholder="e.g., Purple skin spots, bloody diarrhea, shivering, sneezing..." required></textarea>
+                        <div id="ai-status-msg" class="form-text small mt-1 text-info" style="display:none;">
+                            <i class="fa-solid fa-spinner fa-spin me-1"></i> AI Node is classifying symptoms...
+                        </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-bold text-muted small text-uppercase">Severity Level</label>
+                        <label class="form-label fw-bold text-muted small text-uppercase">Severity Classification</label>
                         <select id="severity-select" name="severity" class="form-select" required>
-                            <option value="Low">🟢 Low (Monitor)</option>
-                            <option value="Medium">🟡 Medium (Needs Attention)</option>
+                            <option value="Low">🟢 Low (Routine Monitor)</option>
+                            <option value="Medium">🟡 Medium (Requires Attention)</option>
                             <option value="High">🔴 High (Critical / Vet Required)</option>
-                            <option value="Critical">💀 Critical (Immediate Action)</option>
+                            <option value="Critical">💀 Critical (Immediate Action / Quarantine)</option>
                         </select>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold text-muted small text-uppercase">AI Diagnosis</label>
-                            <input type="text" id="diagnosis-input" name="diagnosis" class="form-control border-info bg-light fw-bold" readonly placeholder="AI diagnosis result...">
+                            <label class="form-label fw-bold text-muted small text-uppercase">AI Clinical Diagnosis</label>
+                            <input type="text" id="diagnosis-input" name="diagnosis" class="form-control border-info bg-light fw-bold" readonly placeholder="Awaiting classification...">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold text-muted small text-uppercase">Suggested Treatment</label>
-                            <textarea id="treatment-input" name="treatment" class="form-control border-info bg-light" readonly rows="2" placeholder="AI action plan..."></textarea>
+                            <label class="form-label fw-bold text-muted small text-uppercase">Suggested Bio-Action Plan</label>
+                            <textarea id="treatment-input" name="treatment" class="form-control border-info bg-light" readonly rows="2" placeholder="Awaiting treatment path..."></textarea>
                         </div>
                     </div>
                     
-                    <hr class="my-4">
+                    <hr class="my-4 border-secondary opacity-25">
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{% url 'health:health_dashboard' %}" class="btn btn-light px-4">Cancel</a>
-                        <button type="submit" class="btn btn-danger fw-bold px-4 shadow-sm">Save Record</button>
+                        <a href="{% url 'health:health_dashboard' %}" class="btn btn-light px-4 fw-bold">Cancel</a>
+                        <button type="submit" class="btn btn-danger fw-bold px-4 shadow-sm">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Save Health Registry
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
+
+        {% with location=request.user.health_profile.location|lower %}
+        <div class="card mt-4 mb-5 shadow-sm border-0 border-start border-4 border-warning animate__animated animate__fadeInUp">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-1"><i class="fa-solid fa-truck-medical text-warning me-2"></i>Emergency Vet Contacts</h5>
+                <p class="text-muted small mb-3">Localized for your registered farm territory: <strong>{{ request.user.health_profile.location|default:"Unregistered Region" }}</strong></p>
+                
+                <div class="row g-3">
+                {% if 'kirinyaga' in location %}
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background-color: #fffdf5; border: 1px solid #ffeeba;">
+                            <strong class="d-block text-dark">Kirinyaga County Vet HQ</strong>
+                            <span class="text-muted small d-block mb-2">Government Veterinary Services</span>
+                            <a href="tel:0720000000" class="btn btn-sm btn-success rounded-pill fw-bold px-3"><i class="fa-solid fa-phone me-1"></i> Call Now</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background-color: #fffdf5; border: 1px solid #ffeeba;">
+                            <strong class="d-block text-dark">Kutus Agritech Vet</strong>
+                            <span class="text-muted small d-block mb-2">Private Clinic & Mobile Vet</span>
+                            <a href="tel:0712345678" class="btn btn-sm btn-success rounded-pill fw-bold px-3"><i class="fa-solid fa-phone me-1"></i> Call Now</a>
+                        </div>
+                    </div>
+                {% elif 'nairobi' in location %}
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background-color: #fffdf5; border: 1px solid #ffeeba;">
+                            <strong class="d-block text-dark">The Noble Veterinary Surgeons</strong>
+                            <span class="text-muted small d-block mb-2">24/7 Emergency Operations</span>
+                            <a href="tel:+254722657719" class="btn btn-sm btn-success rounded-pill fw-bold px-3"><i class="fa-solid fa-phone me-1"></i> Call Now</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background-color: #fffdf5; border: 1px solid #ffeeba;">
+                            <strong class="d-block text-dark">Petwell Vet Clinic</strong>
+                            <span class="text-muted small d-block mb-2">Livestock & Specialized Care</span>
+                            <a href="tel:0748080080" class="btn btn-sm btn-success rounded-pill fw-bold px-3"><i class="fa-solid fa-phone me-1"></i> Call Now</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background-color: #fffdf5; border: 1px solid #ffeeba;">
+                            <strong class="d-block text-dark">National Agri-Vet Hotline</strong>
+                            <span class="text-muted small d-block mb-2">Toll-Free Nationwide Support</span>
+                            <a href="tel:0800720000" class="btn btn-sm btn-success rounded-pill fw-bold px-3"><i class="fa-solid fa-phone me-1"></i> Call Now</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background-color: #fffdf5; border: 1px solid #ffeeba;">
+                            <strong class="d-block text-dark">AgriTrack Support Desk</strong>
+                            <span class="text-muted small d-block mb-2">System & Routing Assistance</span>
+                            <a href="tel:0700000000" class="btn btn-sm btn-outline-success rounded-pill fw-bold px-3"><i class="fa-solid fa-headset me-1"></i> Help Desk</a>
+                        </div>
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+
     </div>
 </div>
 
 <script>
+    // --- 1. PRE-LOAD WATERMARK LOGO ---
+    let agritrackLogoBase64 = null;
+    
+    window.addEventListener('load', function() {
+        const img = document.getElementById('agritrack-logo-img');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const tryLoad = () => {
+            if (img.naturalWidth === 0 || img.naturalHeight === 0) return;
+            try {
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                ctx.drawImage(img, 0, 0);
+                agritrackLogoBase64 = canvas.toDataURL('image/png');
+            } catch (e) { console.warn("Watermark skipped due to canvas error.", e); }
+        };
+
+        if (img.complete) tryLoad();
+        else img.onload = tryLoad;
+    });
+
+    // Unified Global Contact Dictionary
+    const VET_CONTACTS = {
+        'kirinyaga': [
+            { name: "Kirinyaga County Vet HQ", phone: "0720 000 000" },
+            { name: "Kutus Agritech Vet", phone: "0712 345 678" }
+        ],
+        'nairobi': [
+            { name: "The Noble Veterinary Surgeons", phone: "+254 722 657719" },
+            { name: "Petwell Vet Clinic", phone: "0748 080 080" }
+        ],
+        'default': [
+            { name: "National Agri-Vet Hotline", phone: "0800 720 000" },
+            { name: "AgriTrack Support Desk", phone: "0700 000 000" }
+        ]
+    };
+
+    let currentReportData = {};
+
+    // Helper to determine the user's region based on their profile
+    function getUserRegion() {
+        const locationStr = "{{ request.user.health_profile.location|default:''|escapejs }}".toLowerCase();
+        if (locationStr.includes('kirinyaga')) return 'kirinyaga';
+        if (locationStr.includes('nairobi')) return 'nairobi';
+        return 'default';
+    }
+
+    // --- 2. OFFICIAL CLINICAL PDF GENERATOR ---
+    function generateVetReportPDF() {
+        try {
+            if (!window.jspdf) {
+                Swal.fire('System Notice', 'PDF Engine loading. Please wait.', 'warning');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+
+            // Safe Formatting (Pulls Farm Name dynamically from user profile)
+            const date = new Date().toLocaleString();
+            const safeFarm = "{{ request.user.health_profile.farm_name|escapejs }}" || "{{ request.user.username|title }}'s Farm";
+            const safeTag = String(currentReportData.animalTag || 'Unknown');
+            const safeUep = String(currentReportData.uep && currentReportData.uep !== 'None' ? currentReportData.uep : 'PENDING');
+            const safeSpecies = String(currentReportData.species || 'Livestock').toLowerCase();
+            const safeSymptoms = String(currentReportData.symptoms || 'None recorded.');
+            const safeDiagnosis = String(currentReportData.diagnosis || 'Inconclusive');
+            const safeSeverity = String(currentReportData.severity || 'Unknown');
+            const safeTreatment = String(currentReportData.treatment || 'Consult Vet.');
+            const isQuarantine = currentReportData.quarantine ? 'YES - Immediate Isolation Required' : 'NO - Standard Monitoring';
+
+            // Background (Pure White for the body)
+            doc.setFillColor(255, 255, 255);
+            doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+            // Faint, Clean Watermark
+            if (agritrackLogoBase64) {
+                try {
+                    doc.saveGraphicsState();
+                    doc.setGState(new doc.GState({opacity: 0.04})); // Ultra faint
+                    const wSize = 140; 
+                    doc.addImage(agritrackLogoBase64, 'PNG', (pageWidth/2)-(wSize/2), 80, wSize, wSize);
+                    doc.restoreGraphicsState();
+                } catch(e) {}
+            }
+
+            // --- SOLID GREEN HEADER BANNER ---
+            doc.setFillColor(17, 75, 30); // Dark Clinical Green color
+            doc.rect(0, 0, pageWidth, 35, 'F'); // Draws banner 35 units high across top
+
+            // Header Text (White)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(255, 255, 255); // Pure White
+            doc.text("AGRITRACK AI", 20, 23);
+            
+            // Sub Header (Light Gray)
+            doc.setFontSize(10);
+            doc.setTextColor(200, 200, 200); 
+            doc.text("OFFICIAL CLINICAL VET REPORT", pageWidth - 80, 22);
+
+            // --- BODY SECTION (White Background) ---
+            doc.setTextColor(0, 0, 0); // Black text
+            doc.setFontSize(12);
+
+            let currentY = 55; // Pushed down to start below the green banner
+
+            // Row 1: Farm Node
+            doc.setFont("helvetica", "bold");
+            doc.text("Farm Node:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.text(safeFarm, 70, currentY);
+
+            // Row 2: Date
+            currentY += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("Generated On:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.text(date, 70, currentY);
+
+            // Row 3: Asset
+            currentY += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("Bio-Asset ID:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${safeTag} (${safeSpecies})`, 70, currentY);
+
+            // Row 4: UEP Code
+            currentY += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("UEP Code:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(40, 167, 69); // Green text
+            doc.text(safeUep, 70, currentY);
+            doc.setTextColor(0, 0, 0); // Reset to black
+
+            // Row 5: Symptoms
+            currentY += 20;
+            doc.setFont("helvetica", "bold");
+            doc.text("Reported Symptoms:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            const splitSymptoms = doc.splitTextToSize(safeSymptoms, 160);
+            doc.text(splitSymptoms, 20, currentY + 10);
+
+            currentY += 10 + (splitSymptoms.length * 7);
+
+            // DIVIDER LINE (Thick Black)
+            currentY += 5;
+            doc.setDrawColor(0, 0, 0);
+            doc.setLineWidth(0.8);
+            doc.line(20, currentY, pageWidth - 20, currentY);
+
+            // --- QR CODE (Encoded with Web URL, positioned below banner) ---
+            try {
+                const hostUrl = window.location.origin;
+                const qrLinkUrl = `${hostUrl}/health/receipt/${currentReportData.animalId}/`;
+                const qr = new QRious({ value: qrLinkUrl, size: 200, level: 'M' });
+                
+                doc.addImage(qr.toDataURL('image/jpeg'), 'JPEG', pageWidth - 55, 45, 40, 40);
+            } catch (e) {}
+
+            // BOTTOM SECTION (Diagnostics)
+            currentY += 15;
+            
+            // Header (Crimson Red)
+            doc.setTextColor(215, 50, 65); 
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.text("AI DIAGNOSTIC ENGINE CLASSIFICATION", 20, currentY);
+
+            currentY += 15;
+            doc.setTextColor(0, 0, 0); 
+            doc.setFontSize(12);
+
+            // Disease
+            doc.setFont("helvetica", "bold");
+            doc.text("Suspected Disease:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.text(safeDiagnosis, 70, currentY);
+
+            // Severity
+            currentY += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("Severity Level:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.text(safeSeverity, 70, currentY);
+
+            // Quarantine
+            currentY += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("Quarantine Alert:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            doc.text(isQuarantine, 70, currentY);
+
+            // Action Plan
+            currentY += 15;
+            doc.setFont("helvetica", "bold");
+            doc.text("AI Action Plan:", 20, currentY);
+            doc.setFont("helvetica", "normal");
+            const splitPlan = doc.splitTextToSize(safeTreatment, 170);
+            doc.text(splitPlan, 20, currentY + 10);
+            
+            currentY += 10 + (splitPlan.length * 7);
+
+            // --- NEW: INJECT VET CONTACTS INTO PDF ---
+            currentY += 5;
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.5);
+            doc.line(20, currentY, pageWidth - 20, currentY); // Faint divider line
+
+            currentY += 10;
+            doc.setTextColor(17, 75, 30); // AgriTrack Dark Green
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("EMERGENCY VET CONTACTS (LOCALIZED)", 20, currentY);
+
+            currentY += 10;
+            doc.setTextColor(0, 0, 0); // Black text
+            doc.setFontSize(11);
+
+            // Get the correct contacts based on user region
+            const regionKey = getUserRegion();
+            const localContacts = VET_CONTACTS[regionKey];
+
+            // Loop and print them
+            localContacts.forEach(contact => {
+                doc.setFont("helvetica", "bold");
+                doc.text(contact.name + ":", 20, currentY);
+                doc.setFont("helvetica", "normal");
+                doc.text(contact.phone, 80, currentY);
+                currentY += 8;
+            });
+
+            // Execute Download
+            doc.save(`AgriTrack_Diagnostic_${safeTag}.pdf`);
+
+            Swal.fire('Success!', 'Diagnostic Receipt Downloaded.', 'success');
+
+        } catch (err) {
+            console.error("PDF Crash:", err);
+            Swal.fire('Error', `PDF failed: ${err.message}`, 'error');
+        }
+    }
+
+    // --- 3. VET CONTACTS POPUP (Optional but kept for UI flow) ---
+    function showVetContacts() {
+        const regionKey = getUserRegion();
+        const contacts = VET_CONTACTS[regionKey];
+        
+        let contactHtml = `<div class="text-start mt-3">`;
+        contacts.forEach(v => {
+            contactHtml += `
+                <div class="p-3 mb-2 d-flex justify-content-between align-items-center" style="background-color: #FFF9C4; border: 1px solid #FBC02D; border-radius: 10px;">
+                    <div><strong class="text-dark">${v.name}</strong></div>
+                    <a href="tel:${v.phone}" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">CALL</a>
+                </div>`;
+        });
+        contactHtml += `</div>`;
+
+        Swal.fire({ title: `Vets Near Me`, html: contactHtml, icon: 'info' });
+    }
+
+    // --- 4. AI TRIGGER SCRIPT ---
     document.getElementById('ask-ai-btn').addEventListener('click', function() {
         const symptomsInput = document.getElementById('symptoms-input');
         const animalSelect = document.getElementById('animal-select');
         const diagnosisField = document.getElementById('diagnosis-input');
         const treatmentField = document.getElementById('treatment-input');
         const severitySelect = document.getElementById('severity-select');
-        const symptoms = symptomsInput.value;
-        const btn = this;
         
-        // Basic Validation
         if (!animalSelect.value) {
-            alert('Please select an animal first.');
-            animalSelect.focus();
-            return;
-        }
-
-        if (!symptoms.trim()) {
-            alert('Please type the symptoms first.');
-            symptomsInput.focus();
+            Swal.fire('Node Required', 'Select an animal node.', 'info');
             return;
         }
 
         const selectedOption = animalSelect.options[animalSelect.selectedIndex];
-        const species = selectedOption.getAttribute('data-species');
-
-        // Professional loading state
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Consulting AgriTrack AI...';
-        btn.disabled = true;
-
-        // Reset previous validation styles
-        diagnosisField.classList.remove('is-valid');
-        treatmentField.classList.remove('is-valid');
+        this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        this.disabled = true;
 
         fetch("{% url 'health:suggest_treatment' %}", {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({ 
-                symptoms: symptoms,
-                species: species 
-            })
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+            body: JSON.stringify({ symptoms: symptomsInput.value, species: selectedOption.dataset.species })
         })
-        .then(response => {
-            if (!response.ok) throw new Error('Server returned an error');
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.status === "success") {
-                // Populate fields with fallback for empty strings
-                diagnosisField.value = data.diagnosis || "No specific diagnosis found";
-                treatmentField.value = data.treatment || "Consult your local vet";
+                diagnosisField.value = data.diagnosis;
+                treatmentField.value = data.treatment;
+                severitySelect.value = data.severity;
                 
-                // Auto-set Severity dropdown
-                if (data.severity) {
-                    severitySelect.value = data.severity;
-                }
-                
-                // Add visual success styles
-                diagnosisField.classList.add('is-valid');
-                treatmentField.classList.add('is-valid');
-            } else {
-                alert(data.message || 'AI analysis failed. Try more specific symptoms.');
+                currentReportData = {
+                    animalId: animalSelect.value, 
+                    animalTag: selectedOption.dataset.tag,
+                    species: selectedOption.dataset.species,
+                    uep: selectedOption.dataset.uep,
+                    symptoms: symptomsInput.value,
+                    diagnosis: data.diagnosis,
+                    severity: data.severity,
+                    treatment: data.treatment,
+                    quarantine: data.quarantine_required
+                };
+
+                Swal.fire({
+                    title: 'Classification Complete',
+                    html: `
+                        <div class="d-grid gap-2 mt-2">
+                            <button onclick="generateVetReportPDF()" class="btn btn-danger fw-bold py-3"><i class="fa-solid fa-file-pdf fs-5 me-2"></i> DOWNLOAD DIGITAL RECEIPT</button>
+                            <p class="text-muted small mt-2 mb-0">Scroll down to see localized emergency vet contacts.</p>
+                        </div>`,
+                    icon: 'success'
+                });
             }
         })
-        .catch(error => {
-            console.error('AI Error:', error);
-            alert('The AI is currently processing other requests. Please enter the diagnosis manually or try again in a moment.');
-        })
         .finally(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            this.innerHTML = '<i class="fa-solid fa-microchip me-1"></i> ✨ Ask AgriTrack AI';
+            this.disabled = false;
         });
     });
 </script>
 
 <style>
     .transition-all { transition: all 0.3s ease; }
-    .btn-outline-danger:hover { transform: translateY(-1px); }
+    .btn-outline-danger:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2); }
+    .is-valid { border-color: #198754 !important; background-color: #f8fff9 !important; }
+    .form-control[readonly] { cursor: not-allowed; }
 </style>
 {% endblock %}

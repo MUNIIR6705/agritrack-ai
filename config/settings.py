@@ -1,30 +1,32 @@
 from pathlib import Path
 import os
 import dj_database_url
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SECURITY ---
-# In production, this MUST be set in your Railway Environment Variables
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-key-replace-in-prod')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+DEBUG = os.environ.get('DJANGO_DEBUG') == 'True'
 
-# DEBUG should be False in production (set DJANGO_DEBUG=False in Railway)
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
-
-# Domains allowed for deployment
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost', 
     '.herokuapp.com', 
     '.railway.app', 
-    '.ondigitalocean.app'
+    '.ondigitalocean.app',
+    '.ngrok-free.dev',  # Safaricom Callback access
+    '*'                 # Dev override
 ]
 
-# CSRF Trusted Origins - Required for Django 4.0+ to allow M-Pesa callbacks/form submits
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
-    'https://*.herokuapp.com'
+    'https://*.herokuapp.com',
+    'https://*.ngrok-free.dev'  # CRITICAL: Allows M-Pesa POST requests
 ]
 
 # --- APP DEFINITION ---
@@ -41,9 +43,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     
-    # My Apps (AgriTrack Core)
+    # AgriTrack Core Apps
     'users',
-    'farms',
+    'farms.apps.FarmsConfig',
     'animals',
     'breeding',
     'health',
@@ -84,68 +86,78 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # --- DATABASE CONFIGURATION ---
-# Railway provides DATABASE_URL. If not found, it falls back to local MySQL.
 DATABASES = {
     'default': dj_database_url.config(
-        default='mysql://root:Ramakokha06!@127.0.0.1:3306/agritrack_db',
+        default=os.environ.get('DATABASE_URL'),
         conn_max_age=600,
-        # Railway's internal MySQL networking does not use SSL by default.
-        # Keeping this False prevents 'SSL connection error' during deployment.
         ssl_require=False 
     )
 }
+
+# --- EMAIL CONFIGURATION (AgriTrack Secure Node) ---
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') 
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') 
+DEFAULT_FROM_EMAIL = f"AgriTrack Security <{os.environ.get('EMAIL_HOST_USER')}>"
+
+# --- SESSION & SECURITY POLICIES ---
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  
+SESSION_SAVE_EVERY_REQUEST = True
 
 # --- STATIC & MEDIA FILES ---
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Production-ready static storage with WhiteNoise
+# WhiteNoise Optimization for Production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- AGRI-TRACK AI & EXTERNAL APIS ---
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyByribUmU7oMt95sCdiSnj2ajJ6f9nA6qg')
-GOOGLE_SEARCH_API_KEY = os.environ.get('GOOGLE_SEARCH_API_KEY', '')
-GOOGLE_SEARCH_CX = os.environ.get('GOOGLE_SEARCH_CX', '')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+GOOGLE_SEARCH_API_KEY = os.environ.get('GOOGLE_SEARCH_API_KEY')
+GOOGLE_SEARCH_CX = os.environ.get('GOOGLE_SEARCH_CX')
 
-# M-PESA DARAJA API (Production Sandbox)
-MPESA_CONSUMER_KEY = os.environ.get('MPESA_CONSUMER_KEY', 'QGMx3AcyyFcGVak4ra4UMAQpA6Isv9arqU0VR7em9WdG7rXF')
-MPESA_CONSUMER_SECRET = os.environ.get('MPESA_CONSUMER_SECRET', 'QMlsZXHiclPuiehFi6WMLbSObvMifnL7A9j5JzGbr83BE09kyzrRyag1gV8cLUnN')
-MPESA_SHORTCODE = '174379'
-MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+# M-PESA DARAJA API CONFIG
+MPESA_CONSUMER_KEY = os.environ.get('MPESA_CONSUMER_KEY')
+MPESA_CONSUMER_SECRET = os.environ.get('MPESA_CONSUMER_SECRET')
+MPESA_SHORTCODE = os.environ.get('MPESA_SHORTCODE')
+MPESA_PASSKEY = os.environ.get('MPESA_PASSKEY')
 MPESA_ENVIRONMENT = 'sandbox' 
+# Required for Daraja Callbacks
+MPESA_CALLBACK_URL = os.environ.get('MPESA_CALLBACK_URL')
 
 # --- PRODUCTION SECURITY SETTINGS ---
 if not DEBUG:
-    # Tell Django it's behind a proxy (Railway) so HTTPS works correctly
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000 # 1 Year
+    SECURE_HSTS_SECONDS = 31536000 
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# Standard Django Defaults
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
-
+# --- PROJECT DEFAULTS ---
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Africa/Nairobi' 
 USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# Crispy Forms Config
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# --- AUTHENTICATION REDIRECTS ---
+LOGIN_URL = 'login' 
 LOGIN_REDIRECT_URL = 'health:health_dashboard'
-LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
