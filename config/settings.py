@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # Third Party
     'crispy_forms',
     'crispy_bootstrap5',
-    
+    'anymail'
     # AgriTrack Core Apps
     'users',
     'farms.apps.FarmsConfig',
