@@ -95,7 +95,10 @@ DATABASES = {
 }
 
 # --- EMAIL CONFIGURATION (AgriTrack Secure Node) ---
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Switched to Console Backend to bypass Railway SMTP port blocks. 
+# 2FA codes will now print directly in your Railway deployment logs.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
