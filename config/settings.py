@@ -34,7 +34,8 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
-    'https://*.up.railway.app', # <-- THIS IS THE FIX FOR YOUR DASHBOARD LOGIN!
+    'https://*.up.railway.app',
+    'https://agritrack-ai-production-1303.up.railway.app', # <-- EXACT URL ADDED HERE!
     'https://*.herokuapp.com',
     'https://*.ngrok-free.dev'  # CRITICAL: Allows M-Pesa POST requests
 ]
