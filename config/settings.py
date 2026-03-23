@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     # Third Party
     'crispy_forms',
     'crispy_bootstrap5',
-    'anymail'
+    'anymail',  # <-- Added the required comma here!
+    
     # AgriTrack Core Apps
     'users',
     'farms.apps.FarmsConfig',
@@ -94,17 +95,18 @@ DATABASES = {
     )
 }
 
-# --- EMAIL CONFIGURATION (AgriTrack Secure Node) ---
-# Switched to Console Backend to bypass Railway SMTP port blocks. 
-# 2FA codes will now print directly in your Railway deployment logs.
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') 
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') 
-DEFAULT_FROM_EMAIL = f"AgriTrack Security <{os.environ.get('EMAIL_HOST_USER')}>"
+# --- EMAIL CONFIGURATION (Resend HTTP API) ---
+# Sends emails securely over HTTP to bypass cloud server port blocks.
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+
+ANYMAIL = {
+    "RESEND_API_KEY": os.environ.get("RESEND_API_KEY"),
+}
+
+# CRITICAL: Because you are on the free tier and haven't bought a domain yet,
+# Resend REQUIRES you to send emails from this exact onboarding address.
+DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
+
 
 # --- SESSION & SECURITY POLICIES ---
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
