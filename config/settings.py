@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 # This forces Django to use the pure-Python PyMySQL driver instead of the 
 # C-based mysqlclient, completely bypassing the "missing libmariadb.so.3" error.
 import pymysql
+# Give PyMySQL a "Fake ID" so Django thinks it is version 2.2.1
+pymysql.version_info = (2, 2, 1, "final", 0)
 pymysql.install_as_MySQLdb()
 # -----------------------------------------
 
