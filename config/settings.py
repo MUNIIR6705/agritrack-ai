@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
+    'https://*.up.railway.app', # <-- THIS IS THE FIX FOR YOUR DASHBOARD LOGIN!
     'https://*.herokuapp.com',
     'https://*.ngrok-free.dev'  # CRITICAL: Allows M-Pesa POST requests
 ]
