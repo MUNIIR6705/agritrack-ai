@@ -3,6 +3,13 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 
+# --- PYMYSQL MONKEYPATCH (RAILWAY FIX) ---
+# This forces Django to use the pure-Python PyMySQL driver instead of the 
+# C-based mysqlclient, completely bypassing the "missing libmariadb.so.3" error.
+import pymysql
+pymysql.install_as_MySQLdb()
+# -----------------------------------------
+
 # Load environment variables from the .env file
 load_dotenv()
 
