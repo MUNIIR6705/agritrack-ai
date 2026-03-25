@@ -110,10 +110,42 @@ def add_breeding(request):
 
 @login_required
 def mark_delivered(request, record_id):
-    """Updates record status when birth occurs."""
+    """Updates record status when birth occurs AND auto-generates the babies."""
     record = get_object_or_404(BreedingRecord, id=record_id, mother__owner=request.user)
-    record.status = 'Delivered'
-    record.actual_delivery = timezone.now().date()
-    record.save()
-    messages.success(request, f"Birth recorded for {record.mother.tag_number}.")
-    return redirect('breeding:breeding_list')
+    
+    if request.method == "POST":
+        # Get the number of babies born from the form (default to 1 if empty/error)
+        try:
+            litter_size = int(request.POST.get('litter_size', 1))
+        except ValueError:
+            litter_size = 1
+
+        # 1. Update the Mother's breeding record
+        record.status = 'Delivered'
+        record.actual_delivery = timezone.now().date()
+        record.save()
+        
+        # 2. Automatically generate the baby animals!
+        babies_created = 0
+        for _ in range(litter_size):
+            Animal.objects.create(
+                species=record.mother.species,     # Inherit species from mother
+                breed=record.mother.breed,         # Inherit breed from mother
+                date_of_birth=record.actual_delivery, 
+                gender='Unknown',                  # Default to Unknown until sexed
+                owner=request.user,
+                status='Active'
+                # Notice we do NOT pass tag_number or uep_code! 
+                # The Animal.save() method will auto-generate them!
+            )
+            babies_created += 1
+
+        if babies_created > 0:
+            messages.success(request, f"🎉 Success! Mother {record.mother.tag_number} delivered. {babies_created} newborn(s) were added and auto-tagged in the system!")
+        else:
+            messages.success(request, f"Birth recorded for {record.mother.tag_number}.")
+            
+        return redirect('breeding:breeding_list')
+
+    # If it's a GET request, show a quick confirmation page asking for litter size
+    return render(request, 'breeding/confirm_delivery.html', {'record': record})

@@ -3,82 +3,266 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark mb-0">
-                {{ animal.tag_number }} 
-                <span class="badge bg-secondary ms-2" style="font-size: 0.9rem;">{{ animal.species }}</span>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom-dark">
+        <div class="mb-3 mb-md-0">
+            <h2 class="fw-bold text-white mb-2 d-flex align-items-center">
+                <i class="fas fa-tag neon-text me-3"></i>{{ animal.tag_number }} 
+                <span class="animal-tag-pill ms-3 align-middle fs-6">{{ animal.species }}</span>
             </h2>
-            <p class="text-muted mb-0">Farm: {{ animal.owner.username }}</p>
+            <div class="text-light-muted mt-2">
+                <span class="me-4" title="Unique Electronic Profile">
+                    <i class="fas fa-microchip neon-text me-1"></i> UEP: <span class="font-monospace text-white fw-bold">{{ animal.uep_code }}</span>
+                </span>
+                <span>
+                    <i class="fas fa-tractor neon-text me-1"></i> Farm: <span class="text-white">{{ animal.owner.username }}</span>
+                </span>
+            </div>
         </div>
-        <a href="{% url 'health:add_health_record' %}" class="btn btn-danger shadow-sm">
-            🩺 Log Health Issue
-        </a>
+        <div class="text-md-end">
+            <a href="{% url 'health:add_health_record' %}" class="btn btn-health shadow-sm fw-bold rounded-pill px-4">
+                <i class="fas fa-stethoscope me-2"></i> Log Health
+            </a>
+        </div>
     </div>
 
     <div class="row">
         <div class="col-md-8 mb-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="mb-0 fw-bold text-success">📋 Profile Information</h5>
+            <div class="card dark-module-bg shadow-sm border-0 rounded-4">
+                <div class="card-header bg-transparent py-3 border-bottom-dark d-flex align-items-center">
+                    <i class="fas fa-clipboard-list neon-text fs-5 me-2"></i>
+                    <h5 class="mb-0 fw-bold text-white tracking-wide text-uppercase" style="letter-spacing: 1px; font-size: 0.9rem;">Biological Profile</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-6 mb-3">
-                            <span class="text-muted small text-uppercase fw-bold">Breed</span><br>
-                            <span class="fs-5">{{ animal.breed|default:"Unknown" }}</span>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <div class="p-3 profile-inner-box rounded-3 border-start border-4 border-neon">
+                                <span class="text-light-muted small text-uppercase fw-bold">Breed</span><br>
+                                <span class="fs-5 fw-semibold text-white">{{ animal.breed|default:"Crossbreed" }}</span>
+                            </div>
                         </div>
-                        <div class="col-sm-6 mb-3">
-                            <span class="text-muted small text-uppercase fw-bold">Gender</span><br>
-                            <span class="fs-5">{{ animal.gender }}</span>
+                        <div class="col-sm-6">
+                            <div class="p-3 profile-inner-box rounded-3 border-start border-4 border-info-dark">
+                                <span class="text-light-muted small text-uppercase fw-bold">Gender</span><br>
+                                <span class="fs-5 fw-semibold text-white">
+                                    {% if animal.gender == 'Male' %}
+                                        <i class="fas fa-mars text-info me-1"></i> Male
+                                    {% else %}
+                                        <i class="fas fa-venus text-pink me-1" style="color: #f472b6;"></i> Female
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
-                        <div class="col-sm-6 mb-3">
-                            <span class="text-muted small text-uppercase fw-bold">Age</span><br>
-                            <span class="fs-5">{{ animal.date_of_birth|timesince }} old</span>
+                        <div class="col-sm-6">
+                            <div class="p-3 profile-inner-box rounded-3 border-start border-4 border-warning-dark">
+                                <span class="text-light-muted small text-uppercase fw-bold">Age</span><br>
+                                <span class="fs-5 fw-semibold text-white">
+                                    {% if animal.date_of_birth %}
+                                        {{ animal.date_of_birth|timesince }} old
+                                    {% else %}
+                                        <span class="text-light-muted fs-6">Not recorded</span>
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
-                        <div class="col-sm-6 mb-3">
-                            <span class="text-muted small text-uppercase fw-bold">Status</span><br>
-                            {% if animal.status == 'Active' %}
-                                <span class="badge bg-success shadow-sm px-3 py-2">{{ animal.status }}</span>
-                            {% else %}
-                                <span class="badge bg-secondary shadow-sm px-3 py-2">{{ animal.status }}</span>
-                            {% endif %}
+                        <div class="col-sm-6">
+                            <div class="p-3 profile-inner-box rounded-3 border-start border-4 {% if animal.status == 'Active' %}border-neon{% elif animal.status == 'Sick' %}border-danger-dark{% else %}border-secondary-dark{% endif %}">
+                                <span class="text-light-muted small text-uppercase fw-bold mb-2 d-block">Status</span>
+                                {% if animal.status == 'Active' %}
+                                    <span class="status-badge badge-active">{{ animal.status|upper }}</span>
+                                {% elif animal.status == 'Sick' %}
+                                    <span class="status-badge badge-sick">{{ animal.status|upper }}</span>
+                                {% elif animal.status == 'Sold' %}
+                                    <span class="status-badge badge-sold">{{ animal.status|upper }}</span>
+                                {% else %}
+                                    <span class="status-badge badge-other">{{ animal.status|upper }}</span>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {% if animal.gender == 'Female' %}
+            <div class="card dark-module-bg shadow-sm border-0 mt-4 rounded-4 overflow-hidden">
+                <div class="card-header bg-transparent py-3 border-bottom-dark d-flex align-items-center">
+                    <i class="fas fa-baby neon-text fs-5 me-2"></i>
+                    <h5 class="mb-0 fw-bold text-white tracking-wide text-uppercase" style="letter-spacing: 1px; font-size: 0.9rem;">Offspring Lineage</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 custom-dark-table">
+                            <thead style="background-color: #011f14;">
+                                <tr>
+                                    <th class="ps-4 py-3 border-0 text-neon small" style="color: #bdf241;">DATE OF BIRTH</th>
+                                    <th class="py-3 border-0 text-neon small" style="color: #bdf241;">AUTO-GENERATED TAG</th>
+                                    <th class="text-end pe-4 py-3 border-0 text-neon small" style="color: #bdf241;">VIEW</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for child in animal.offspring.all|dictsortreversed:"date_of_birth" %}
+                                <tr class="table-row-dark">
+                                    <td class="ps-4 py-3">
+                                        <span class="text-white fw-bold">{{ child.date_of_birth|date:"M d, Y" }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="animal-tag-pill" style="font-size: 0.75rem; padding: 2px 8px !important;">{{ child.tag_number }}</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a href="{% url 'animals:animal_detail' child.id %}" class="btn btn-sm action-btn rounded-circle">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 bg-transparent border-0">
+                                        <div class="mb-2" style="color: #04432a;">
+                                            <i class="fas fa-dna fa-2x"></i>
+                                        </div>
+                                        <p class="text-light-muted small mb-0">No recorded offspring.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <div class="col-md-4 mb-4">
             <div class="d-grid gap-2 mb-4">
-                <a href="{% url 'health:record_weight' %}?animal={{ animal.id }}" class="btn btn-primary fw-bold py-2 shadow-sm">
-                    ⚖️ Record Weight
+                <a href="{% url 'health:record_weight' %}?animal={{ animal.id }}" class="btn btn-neon fw-bold py-3 shadow-sm rounded-pill">
+                    <i class="fas fa-weight me-2"></i> Record Weight
                 </a>
             </div>
 
-            <div class="card shadow border-dark mb-4">
-                <div class="card-header bg-dark text-white text-center py-2">
-                    <h6 class="mb-0 fw-bold">📲 Digital Traceability</h6>
+            <div class="card dark-module-bg shadow-sm border-0 mb-4 overflow-hidden rounded-4">
+                <div class="card-header bg-transparent border-bottom-dark text-center py-3">
+                    <h6 class="mb-0 fw-bold text-uppercase tracking-wide text-white" style="letter-spacing: 1px;">
+                        <i class="fas fa-qrcode neon-text me-2"></i> Digital Passport
+                    </h6>
                 </div>
-                <div class="card-body text-center bg-light">
+                <div class="card-body text-center p-4 profile-inner-box">
                     {% if animal.qr_code %}
-                        <img src="{{ animal.qr_code.url }}" alt="QR Code for {{ animal.tag_number }}" class="img-fluid border rounded shadow-sm bg-white p-2 mb-2" style="max-width: 150px;">
-                        <p class="small text-muted mb-0">Scan to view complete history</p>
+                        <div class="bg-white d-inline-block p-2 rounded shadow-sm hover-zoom mb-3">
+                            <a href="{{ animal.qr_code.url }}" target="_blank" title="Click to enlarge">
+                                <img src="{{ animal.qr_code.url }}" alt="QR Code" class="img-fluid" style="max-width: 160px;">
+                            </a>
+                        </div>
+                        <div class="p-2 rounded border-dashed font-monospace small text-light-muted">
+                            SCAN FOR UEP VERIFICATION
+                        </div>
                     {% else %}
-                        <div class="p-4 border rounded text-muted">
-                            <i class="fas fa-qrcode fa-3x mb-2 opacity-25"></i>
-                            <p class="mb-0 small">No QR code generated yet.</p>
+                        <div class="p-4 border-dashed rounded text-light-muted">
+                            <i class="fas fa-qrcode fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0 small fw-bold">No Digital Passport</p>
+                            <p class="small mb-0">QR code was not generated.</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
             
-            <div class="d-grid">
-                <a href="{% url 'animals:animal_list' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Roster
+            <div class="d-grid mt-3">
+                <a href="javascript:history.back()" class="btn btn-outline-dark-theme fw-bold py-2 rounded-pill" style="position: relative; z-index: 50; cursor: pointer;">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Roster
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Table Fixes */
+    .table { --bs-table-bg: transparent !important; }
+    .custom-dark-table td { background-color: transparent !important; border-color: #04432a !important; vertical-align: middle; }
+    .table-row-dark:hover { background-color: rgba(189, 242, 65, 0.08) !important; box-shadow: inset 4px 0 0 0 #bdf241 !important; }
+
+    /* Action Circle Button */
+    .action-btn {
+        background-color: transparent !important;
+        border: 1px solid #bdf241 !important;
+        color: #bdf241 !important;
+        width: 30px !important;
+        height: 30px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        transition: all 0.2s;
+    }
+    .action-btn:hover { background-color: #bdf241 !important; color: #022a1c !important; transform: scale(1.1); }
+
+    /* Main Backgrounds & Borders */
+    .dark-module-bg { background-color: #022a1c !important; border: 1px solid #04432a !important; }
+    .profile-inner-box { background-color: #011f14 !important; }
+    .border-bottom-dark { border-bottom: 1px solid #04432a !important; }
+
+    /* Text Colors */
+    .neon-text { color: #bdf241 !important; } 
+    .text-white { color: #ffffff !important; }
+    .text-light-muted { color: #94a3b8 !important; }
+
+    /* Custom Border Colors for the Biological Profile Grid */
+    .border-neon { border-color: #bdf241 !important; }
+    .border-info-dark { border-color: #38bdf8 !important; }
+    .border-warning-dark { border-color: #fbbf24 !important; }
+    .border-danger-dark { border-color: #ef4444 !important; }
+    .border-secondary-dark { border-color: #64748b !important; }
+
+    /* Buttons */
+    .btn-neon {
+        background-color: transparent !important;
+        color: #bdf241 !important;
+        border: 2px solid #bdf241 !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .btn-neon:hover { background-color: #bdf241 !important; color: #022a1c !important; }
+
+    .btn-health {
+        background-color: transparent !important;
+        color: #f87171 !important;
+        border: 2px solid #f87171 !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .btn-health:hover { background-color: #f87171 !important; color: #450a0a !important; }
+
+    .btn-outline-dark-theme {
+        background-color: transparent !important;
+        color: #94a3b8 !important;
+        border: 1px solid #04432a !important;
+    }
+    .btn-outline-dark-theme:hover { background-color: #04432a !important; color: #ffffff !important; }
+
+    /* Animal Tag Pill */
+    .animal-tag-pill {
+        background-color: transparent !important;
+        color: #bdf241 !important;
+        border: 1px solid #bdf241 !important;
+        border-radius: 6px !important;
+        padding: 4px 12px !important;
+        font-weight: 800 !important;
+        display: inline-block !important;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        border-radius: 50rem !important;
+        padding: 5px 14px !important;
+        font-size: 0.75rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        display: inline-block !important;
+    }
+    .badge-active { background-color: #facc15 !important; color: #422006 !important; } 
+    .badge-sick { background-color: #f87171 !important; color: #450a0a !important; } 
+    .badge-sold { background-color: #94a3b8 !important; color: #0f172a !important; } 
+    .badge-other { background-color: #38bdf8 !important; color: #082f49 !important; } 
+
+    /* Utilities */
+    .border-dashed { border: 1px dashed #04432a !important; }
+    .hover-zoom { transition: transform 0.2s ease; }
+    .hover-zoom:hover { transform: scale(1.05); }
+</style>
 {% endblock %}

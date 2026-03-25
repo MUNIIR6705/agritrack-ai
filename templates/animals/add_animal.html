@@ -1,65 +1,200 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-success text-white py-3 border-0">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-plus-circle me-2 fs-4"></i>
-                    <h4 class="mb-0 fw-bold">Register New Livestock</h4>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            
+            <div class="card dark-module-bg shadow-lg border-0 rounded-4">
+                
+                <div class="card-header bg-transparent border-bottom-dark p-4 d-flex align-items-center">
+                    <div class="icon-circle-neon me-3 d-flex align-items-center justify-content-center shadow-sm">
+                        <i class="fas fa-plus fs-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fw-bold text-white">Register New Livestock</h3>
+                        <p class="small mb-0 text-light-muted">This system will automatically generate UEP Code.</p>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="{% url 'animals:add_animal' %}">
+                        {% csrf_token %}
+                        
+                        <div class="profile-inner-box p-4 rounded-4 border-start border-5 border-neon mb-4 shadow-sm">
+                            <h5 class="fw-bold text-white mb-4 d-flex align-items-center">
+                                <i class="fas fa-dna neon-text me-2"></i> Genetics & Variety
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-uppercase neon-label" for="id_species">Species</label>
+                                    {{ form.species }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-uppercase neon-label" for="id_breed">Variety / Breed</label>
+                                    {{ form.breed }}
+                                    <div class="form-text small neon-text mt-2">
+                                        <i class="fas fa-magic me-1"></i>Updates automatically.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-inner-box p-4 rounded-4 border-start border-5 border-info-dark mb-4 shadow-sm">
+                            <h5 class="fw-bold text-white mb-4 d-flex align-items-center">
+                                <i class="fas fa-venus-mars text-info me-2"></i> Biological Details
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-uppercase neon-label" for="id_gender">Gender</label>
+                                    {{ form.gender }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-uppercase neon-label" for="id_date_of_birth">Date of Birth</label>
+                                    {{ form.date_of_birth }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-inner-box p-4 rounded-4 border-start border-5 border-warning-dark mb-4 shadow-sm">
+                            <h5 class="fw-bold text-white mb-4 d-flex align-items-center">
+                                <i class="fas fa-heartbeat text-warning me-2"></i> Current Status
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-uppercase neon-label" for="id_status">Health/Farm Status</label>
+                                    {{ form.status }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-5">
+                            <a href="{% url 'animals:animal_list' %}" class="btn btn-outline-dark-theme px-4 py-2 fw-bold rounded-pill">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-neon px-5 py-2 fw-bold shadow-sm rounded-pill">
+                                <i class="fas fa-save me-2"></i> Save Profile
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <div class="card-body p-4 bg-white">
-                <p class="text-muted small mb-4">Fill in the details below to add a new animal to your AgriTrack roster. A unique QR code will be generated automatically.</p>
-                
-                <form method="POST" action="{% url 'animals:add_animal' %}">
-                    {% csrf_token %}
-                    
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase text-muted" for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                        </label>
-                        
-                        {# Standard Django form rendering with Bootstrap classes added via widgets usually #}
-                        {{ field }}
-                        
-                        {% if field.help_text %}
-                            <div class="form-text small">{{ field.help_text }}</div>
-                        {% endif %}
-                        
-                        {% if field.errors %}
-                            {% for error in field.errors %}
-                                <div class="text-danger small mt-1">
-                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                    {% endfor %}
 
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success fw-bold py-2 shadow-sm">
-                            <i class="fas fa-save me-1"></i> Save Animal Profile
-                        </button>
-                        <a href="{% url 'animals:animal_list' %}" class="btn btn-outline-secondary py-2 border-0 fw-bold">
-                            Cancel
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <div class="mt-3 text-center">
-            <small class="text-muted">
-                <i class="fas fa-info-circle me-1"></i> 
-                Need help? Contact the AgriTrack Support Team.
-            </small>
         </div>
     </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const breedData = {
+            'Pig': ['Large White', 'Landrace', 'Duroc', 'Hampshire', 'Crossbreed'],
+            'Rabbit': ['New Zealand White', 'Californian', 'Flemish Giant', 'Chinchilla', 'Crossbreed']
+        };
 
+        const speciesSelect = document.getElementById('id_species');
+        const breedSelect = document.getElementById('id_breed');
 
+        if (speciesSelect && breedSelect) {
+            speciesSelect.addEventListener('change', function() {
+                const selectedSpecies = this.value;
+                breedSelect.innerHTML = '<option value="">-- Select a Variety --</option>';
+
+                if (breedData[selectedSpecies]) {
+                    breedData[selectedSpecies].forEach(function(breed) {
+                        const option = document.createElement('option');
+                        option.value = breed;
+                        option.text = breed;
+                        breedSelect.add(option);
+                    });
+                }
+            });
+
+            if(speciesSelect.value) {
+                speciesSelect.dispatchEvent(new Event('change'));
+            }
+        }
+    });
+</script>
+
+<style>
+    /* Main Backgrounds & Borders */
+    .dark-module-bg { 
+        background-color: #022a1c !important; /* Deep forest green */
+        border: 1px solid #04432a !important;
+    }
+    .profile-inner-box {
+        background-color: #011f14 !important; /* Extremely dark inner background */
+    }
+    .border-bottom-dark {
+        border-bottom: 1px solid #04432a !important;
+    }
+
+    /* Text Colors */
+    .neon-text { color: #bdf241 !important; } /* High-vis neon green */
+    .neon-label { color: #bdf241 !important; letter-spacing: 0.5px; } 
+    .text-white { color: #ffffff !important; }
+    .text-light-muted { color: #94a3b8 !important; }
+
+    /* Custom Borders for Cards */
+    .border-neon { border-color: #bdf241 !important; }
+    .border-info-dark { border-color: #38bdf8 !important; }
+    .border-warning-dark { border-color: #fbbf24 !important; }
+
+    /* The '+' Header Icon */
+    .icon-circle-neon {
+        background-color: rgba(189, 242, 65, 0.15) !important;
+        color: #bdf241 !important;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+    }
+
+    /* Form Inputs (Selects, Text Inputs, Dates) */
+    select, input {
+        border-radius: 8px !important;
+        border: 1px solid #04432a !important; /* Dark green border */
+        padding: 0.75rem 1rem !important;
+        background-color: #022a1c !important; /* Deep dark background */
+        color: #ffffff !important; /* White text inside inputs */
+        width: 100%;
+        transition: all 0.2s ease;
+    }
+    
+    /* Make the calendar picker icon white in dark mode if possible */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        opacity: 0.6;
+        cursor: pointer;
+    }
+
+    select:focus, input:focus {
+        border-color: #bdf241 !important; /* Neon border on focus */
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(189, 242, 65, 0.15) !important;
+        background-color: #011f14 !important;
+    }
+
+    /* Buttons */
+    .btn-neon {
+        background-color: #bdf241 !important;
+        color: #022a1c !important;
+        border: 2px solid #bdf241 !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .btn-neon:hover {
+        background-color: transparent !important;
+        color: #bdf241 !important;
+    }
+
+    .btn-outline-dark-theme {
+        background-color: transparent !important;
+        color: #94a3b8 !important;
+        border: 1px solid #04432a !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .btn-outline-dark-theme:hover {
+        background-color: #04432a !important;
+        color: #ffffff !important;
+    }
+</style>
 {% endblock %}

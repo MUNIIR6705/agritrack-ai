@@ -16,6 +16,7 @@ class Animal(models.Model):
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
+        ('Unknown', 'Unknown'), # Added so newborns can be logged before sexing
     ]
 
     STATUS_CHOICES = [
@@ -25,31 +26,48 @@ class Animal(models.Model):
         ('Quarantined', 'Quarantined'),
     ]
 
-    # Physical Identification
-    tag_number = models.CharField(max_length=50, unique=True)
+    # Physical Identification (blank=True allows the system to auto-generate it)
+    tag_number = models.CharField(max_length=50, unique=True, blank=True)
     
     # PROPOSAL FEATURE: Unique Electronic Profile (UEP)
-    # FINALIZED: Removed null=True. This is now a mandatory unique key.
     uep_code = models.CharField(max_length=50, unique=True, editable=False)
     
     species = models.CharField(max_length=50, choices=SPECIES_CHOICES)
     breed = models.CharField(max_length=50, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='Unknown')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
+    
+    # NEW FEATURE: Maternity Tracking & Lineage
+    mother = models.ForeignKey(
+        'self', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='offspring',
+        help_text="Link to the mother for genetic tracking and offspring display."
+    )
     
     # QR Code Field for physical-to-digital bridge
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        # 1. Generate UEP if it doesn't exist
-        if not self.uep_code:
-            prefix = self.species[:2].upper() if self.species else "AN"
-            unique_suffix = uuid.uuid4().hex[:8].upper()
-            self.uep_code = f"AT-{prefix}-{unique_suffix}"
+        # 1. Generate Physical Tag Number if it doesn't exist
+        if not self.tag_number:
+            # Short prefix for the physical ear tag
+            tag_prefix = "PG" if self.species == 'Pig' else ("RB" if self.species == 'Rabbit' else "AN")
+            # Generate a short 6-character unique ID
+            unique_tag_id = uuid.uuid4().hex[:6].upper()
+            self.tag_number = f"{tag_prefix}-{unique_tag_id}"
 
-        # 2. Generate QR code only if it's missing (Digital Passport)
+        # 2. Generate UEP if it doesn't exist
+        if not self.uep_code:
+            uep_prefix = self.species[:2].upper() if self.species else "AN"
+            unique_suffix = uuid.uuid4().hex[:8].upper()
+            self.uep_code = f"AT-{uep_prefix}-{unique_suffix}"
+
+        # 3. Generate QR code only if it's missing (Digital Passport)
         if not self.qr_code:
             qr = qrcode.QRCode(
                 version=1,
@@ -81,7 +99,6 @@ class Animal(models.Model):
 
     def __str__(self):
         return f"{self.uep_code} ({self.tag_number})"
-
 
 
 class WeightRecord(models.Model):

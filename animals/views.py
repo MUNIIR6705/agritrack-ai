@@ -17,7 +17,15 @@ def animal_list(request):
 def animal_detail(request, animal_id):
     """Detailed view of a single animal including health and weight history"""
     animal = get_object_or_404(Animal, id=animal_id, owner=request.user)
-    return render(request, 'animals/animal_detail.html', {'animal': animal})
+    
+    # Fetch weight history so we can display it on the profile dashboard
+    weight_history = animal.weight_records.all().order_by('-date_recorded')
+    
+    context = {
+        'animal': animal,
+        'weight_history': weight_history
+    }
+    return render(request, 'animals/animal_detail.html', context)
 
 @login_required
 def add_animal(request):
@@ -27,9 +35,9 @@ def add_animal(request):
         if form.is_valid():
             animal = form.save(commit=False)
             animal.owner = request.user # Automated ownership assignment
-            animal.save()
+            animal.save() # This triggers the auto-generation of UEP, Tag, and QR Code!
+            
             messages.success(request, f"Animal {animal.tag_number} registered successfully!")
-            # FIXED: Added 'animals:' namespace
             return redirect('animals:animal_list') 
     else:
         form = AnimalForm()
@@ -38,7 +46,7 @@ def add_animal(request):
 
 @login_required
 def add_weight(request, animal_id):
-    """Records new weight data and updates the animal's current weight"""
+    """Records new weight data and attaches it to the animal's history"""
     animal = get_object_or_404(Animal, id=animal_id, owner=request.user)
     
     if request.method == 'POST':
@@ -48,12 +56,7 @@ def add_weight(request, animal_id):
             weight_record.animal = animal
             weight_record.save()
             
-            # Smart update: Sync current weight back to the Animal model
-            animal.weight = weight_record.weight
-            animal.save()
-            
             messages.success(request, f"Weight of {weight_record.weight}kg logged for {animal.tag_number}.")
-            # FIXED: Added 'animals:' namespace
             return redirect('animals:animal_detail', animal_id=animal.id)
     else:
         form = WeightForm(initial={'animal': animal}, user=request.user)
@@ -67,7 +70,6 @@ def sell_animal(request, animal_id):
 
     if animal.status == 'Sold':
         messages.warning(request, f"{animal.tag_number} is already marked as Sold.")
-        # FIXED: Added 'animals:' namespace
         return redirect('animals:animal_detail', animal_id=animal.id)
 
     if request.method == "POST":
@@ -79,8 +81,8 @@ def sell_animal(request, animal_id):
             animal.save()
 
             # Note: Integration with health:financial_reports could happen here
+            # For now, we just log the success message
             messages.success(request, f"🎉 Sale Confirmed! {animal.tag_number} sold to {buyer_name} for KES {sale_price}.")
-            # FIXED: Added 'animals:' namespace
             return redirect('animals:animal_list')
 
         except Exception as e:

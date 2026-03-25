@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h4>Record Birth for Mother {{ record.mother.tag_number }}</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Expected Date:</strong> {{ record.expected_delivery }}</p>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="litter_size" class="form-label">How many babies were born?</label>
+                    <input type="number" class="form-control" id="litter_size" name="litter_size" min="0" required>
+                    <small class="text-muted">The system will automatically generate ID tags and QR codes for each baby.</small>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Confirm Birth & Tag Babies</button>
+                <a href="{% url 'breeding:breeding_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

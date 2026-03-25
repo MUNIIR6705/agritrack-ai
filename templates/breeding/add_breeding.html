@@ -1,44 +1,120 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white py-3 text-center">
-                <h4 class="fw-bold mb-0 text-dark">🐣 Log Breeding Event</h4>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden mt-2">
+                
+                <div class="card-header border-0 p-4 text-center" style="background-color: #022a1c;">
+                    <div class="mb-3 d-flex justify-content-center">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 60px; height: 60px; background-color: rgba(189, 242, 65, 0.15);">
+                            <i class="fas fa-venus-mars fa-2x" style="color: #bdf241;"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-white mb-1">Log Breeding Event</h3>
+                    <p class="small mb-0" style="color: #94a3b8; letter-spacing: 0.5px;">Automated Gestation Tracking</p>
+                </div>
+
+                <div class="card-body bg-white p-4 p-md-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase" style="color: #04432a;">Select Mother (Dam)</label>
+                            <select name="mother" class="form-select form-select-lg custom-white-input" required>
+                                <option value="" selected disabled>Choose a female animal...</option>
+                                {% for female in females %}
+                                    <option value="{{ female.id }}">{{ female.tag_number }} - {{ female.species }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase" style="color: #04432a;">Father Tag (Sire)</label>
+                            <input type="text" name="father_tag" class="form-control form-control-lg custom-white-input" placeholder="e.g. SR-001 or External" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase" style="color: #04432a;">Mating Date</label>
+                            <input type="date" name="mating_date" id="id_mating_date" class="form-control form-control-lg custom-white-input" required>
+                        </div>
+
+                        <div class="alert px-3 py-3 rounded-3 mb-4 d-flex align-items-start shadow-sm" style="background-color: #f0fdf4; border: 1px solid #bdf241; color: #04432a;">
+                            <i class="fas fa-robot fs-4 me-3 mt-1" style="color: #059669;"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Smart Forecasting Active</h6>
+                                <small style="color: #022a1c;">Delivery dates are auto-calculated by the system (Pigs: 114 days | Rabbits: 31 days).</small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-lg w-100 fw-bold shadow-sm hybrid-submit-btn mb-3">
+                            <i class="fas fa-save me-2"></i> Save Breeding Record
+                        </button>
+                        
+                        <a href="{% url 'breeding_dashboard' %}" class="btn w-100 fw-bold cancel-link">
+                            Cancel & Return
+                        </a>
+                    </form>
+                </div>
             </div>
-            <div class="card-body p-4">
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Select Mother (Dam)</label>
-                        <select name="mother" class="form-select" required>
-                            <option value="" selected disabled>Choose a female animal...</option>
-                            {% for female in females %}
-                            <option value="{{ female.id }}">{{ female.tag_number }} - {{ female.species }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Father Tag (Sire)</label>
-                        <input type="text" name="father_tag" class="form-control" placeholder="e.g. SR-001 or External" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Mating Date</label>
-                        <input type="date" name="mating_date" class="form-control" required>
-                    </div>
-
-                    <div class="alert alert-info py-2 mb-4">
-                        <small>💡 <strong>Note:</strong> Delivery dates are auto-calculated (Pigs: 114 days | Rabbits: 31 days).</small>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">Save Breeding Record</button>
-                    <a href="{% url 'breeding_dashboard' %}" class="btn btn-link w-100 text-muted text-decoration-none mt-2">Cancel</a>
-                </form>
-            </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('id_mating_date');
+        const today = new Date().toISOString().split('T')[0];
+        if(!dateInput.value) {
+            dateInput.value = today;
+        }
+    });
+</script>
+
+<style>
+    /* Styling for the inputs on the white background */
+    .custom-white-input {
+        border-radius: 8px !important;
+        border: 2px solid #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+        padding: 0.75rem 1rem !important;
+        transition: all 0.2s ease;
+    }
+    
+    .custom-white-input:focus {
+        border-color: #04432a !important; /* Deep green border on focus */
+        background-color: #ffffff !important;
+        box-shadow: 0 0 0 4px rgba(189, 242, 65, 0.2) !important; /* Soft neon glow */
+        outline: none;
+    }
+
+    /* Branded Submit Button */
+    .hybrid-submit-btn {
+        background-color: #04432a !important; /* Deep Green */
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 14px !important;
+        transition: all 0.2s ease !important;
+    }
+    .hybrid-submit-btn:hover {
+        background-color: #022a1c !important; /* Darker green on hover */
+        color: #bdf241 !important; /* Neon text on hover */
+        transform: translateY(-2px);
+    }
+
+    /* Cancel Link Styling */
+    .cancel-link {
+        color: #64748b !important;
+        transition: all 0.2s ease;
+    }
+    .cancel-link:hover {
+        color: #0f172a !important;
+        text-decoration: underline !important;
+    }
+</style>
 {% endblock %}

@@ -19,7 +19,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SECURITY ---
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key-for-dev')
 DEBUG = os.environ.get('DJANGO_DEBUG') == 'True'
 
 ALLOWED_HOSTS = [
@@ -29,16 +29,26 @@ ALLOWED_HOSTS = [
     '.railway.app', 
     '.ondigitalocean.app',
     '.ngrok-free.dev',  # Safaricom Callback access
+    '.ngrok-free.app',  # Added alternative Ngrok domain just in case
+    '.ngrok.io',        # Added older Ngrok domain just in case
     '*'                 # Dev override
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
-    'https://agritrack-ai-production-1303.up.railway.app', # <-- EXACT URL ADDED HERE!
+    'https://agritrack-ai-production-1303.up.railway.app', 
     'https://*.herokuapp.com',
-    'https://*.ngrok-free.dev'  # CRITICAL: Allows M-Pesa POST requests
+    'https://*.ngrok-free.dev', 
+    'https://*.ngrok-free.app', # <-- Added for robust Ngrok support
+    'https://*.ngrok.io'        # <-- Added for robust Ngrok support
 ]
+
+# ==========================================
+# NGROK CONFIGURATION (CRITICAL FOR M-PESA)
+# ==========================================
+# Update this string with the exact "Forwarding" URL you see in your Ngrok terminal!
+NGROK_URL = "https://iliana-vespertine-sublabially.ngrok-free.dev"
 
 # --- APP DEFINITION ---
 INSTALLED_APPS = [
@@ -53,7 +63,7 @@ INSTALLED_APPS = [
     # Third Party
     'crispy_forms',
     'crispy_bootstrap5',
-    'anymail',  # <-- Added the required comma here!
+    'anymail',  
     
     # AgriTrack Core Apps
     'users',
@@ -107,17 +117,13 @@ DATABASES = {
 }
 
 # --- EMAIL CONFIGURATION (Resend HTTP API) ---
-# Sends emails securely over HTTP to bypass cloud server port blocks.
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
 
 ANYMAIL = {
     "RESEND_API_KEY": os.environ.get("RESEND_API_KEY"),
 }
 
-# CRITICAL: Because you are on the free tier and haven't bought a domain yet,
-# Resend REQUIRES you to send emails from this exact onboarding address.
 DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
-
 
 # --- SESSION & SECURITY POLICIES ---
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -129,7 +135,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise Optimization for Production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
@@ -148,10 +153,10 @@ MPESA_CONSUMER_SECRET = os.environ.get('MPESA_CONSUMER_SECRET')
 MPESA_SHORTCODE = os.environ.get('MPESA_SHORTCODE')
 MPESA_PASSKEY = os.environ.get('MPESA_PASSKEY')
 MPESA_ENVIRONMENT = 'sandbox' 
-# Required for Daraja Callbacks
 MPESA_CALLBACK_URL = os.environ.get('MPESA_CALLBACK_URL')
 
 # --- PRODUCTION SECURITY SETTINGS ---
+# We disable these during local testing (DEBUG=True) so Ngrok callbacks don't get blocked
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True

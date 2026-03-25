@@ -1,87 +1,241 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold text-dark mb-0">🐖 Livestock Roster</h2>
-        <p class="text-muted">Manage and track all your farm animals in real-time.</p>
+<div class="container-fluid py-4">
+    
+    <div class="card dark-module-bg rounded-4 mb-4">
+        <div class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-3 mb-md-0">
+                <div class="neon-text small fw-bold tracking-wide text-uppercase mb-2" style="letter-spacing: 2px;">
+                    Livestock Asset Management
+                </div>
+                <h2 class="fw-bold text-white mb-1 d-flex align-items-center">
+                    <span class="fs-3 me-2">🐖</span> Livestock Roster
+                </h2>
+                <p class="text-light-muted mb-0">Manage and track all your farm animals in real-time.</p>
+            </div>
+            <div>
+                <a href="{% url 'animals:add_animal' %}" class="btn btn-neon rounded-pill px-4 py-2">
+                    <i class="fas fa-plus-circle me-2"></i> Add New Animal
+                </a>
+            </div>
+        </div>
     </div>
-    <a href="{% url 'animals:add_animal' %}" class="btn btn-success fw-bold shadow-sm px-4">
-        <i class="fas fa-plus-circle me-1"></i> Add New Animal
-    </a>
-</div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Tag Number</th>
-                        <th>Species</th>
-                        <th>Breed</th>
-                        <th>Gender</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for animal in animals %}
-                    <tr>
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-tag"></i>
+    <div class="card dark-module-bg rounded-4 overflow-hidden">
+        <div class="card-header border-bottom-dark p-3 bg-transparent">
+            <h5 class="fw-bold text-white mb-0 d-flex align-items-center">
+                <i class="fas fa-clipboard-list me-2 neon-text"></i> Active Roster Records
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 custom-dark-table">
+                    <thead>
+                        <tr>
+                            <th class="ps-4 py-3">IDENTIFICATION</th>
+                            <th class="py-3">SPECIES</th>
+                            <th class="py-3">VARIETY / BREED</th>
+                            <th class="py-3">STATUS</th>
+                            <th class="text-end pe-4 py-3">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for animal in animals %}
+                        <tr class="table-row-dark">
+                            <td class="ps-4 py-3">
+                                <div>
+                                    <div class="animal-tag-pill mb-1">{{ animal.tag_number }}</div>
+                                    <div class="text-light-muted small font-monospace">
+                                        {{ animal.uep_code }}
+                                    </div>
                                 </div>
-                                <span class="fw-bold text-dark">{{ animal.tag_number }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            {% if animal.species|lower == 'pig' %}
-                                <i class="fas fa-piggy-bank text-pink me-1"></i> Pig
-                            {% elif animal.species|lower == 'rabbit' %}
-                                <i class="fas fa-rabbit text-info me-1"></i> Rabbit
-                            {% else %}
-                                {{ animal.species }}
-                            {% endif %}
-                        </td>
-                        <td><span class="text-muted">{{ animal.breed|default:"Crossbreed" }}</span></td>
-                        <td>
-                            {% if animal.gender == 'Male' %}
-                                <i class="fas fa-mars text-primary me-1"></i> Male
-                            {% else %}
-                                <i class="fas fa-venus text-danger me-1"></i> Female
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if animal.status == 'Active' %}
-                                <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">Active</span>
-                            {% elif animal.status == 'Sold' %}
-                                <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary px-3">Sold</span>
-                            {% else %}
-                                <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-3">{{ animal.status }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end pe-4">
-                            <a href="{% url 'animals:animal_detail' animal.id %}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3">
-                                View Profile
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center py-5">
-                            <div class="text-muted mb-3">
-                                <i class="fas fa-clipboard-list fa-3x opacity-25"></i>
-                            </div>
-                            <h5 class="text-muted">No animals found.</h5>
-                            <p class="text-muted small">Click "Add New Animal" to register your first livestock.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </td>
+
+                            <td>
+                                <span class="fw-semibold text-white">
+                                    {{ animal.species }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="text-light-muted">{{ animal.breed|default:"Crossbreed" }}</span>
+                            </td>
+
+                            <td>
+                                {% if animal.status == 'Active' %}
+                                    <span class="status-badge badge-active">ACTIVE</span>
+                                {% elif animal.status == 'Sick' %}
+                                    <span class="status-badge badge-sick">SICK</span>
+                                {% elif animal.status == 'Sold' %}
+                                    <span class="status-badge badge-sold">SOLD</span>
+                                {% else %}
+                                    <span class="status-badge badge-other">{{ animal.status|upper }}</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end pe-4">
+                                {% if animal.qr_code %}
+                                    <a href="{{ animal.qr_code.url }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-circle me-2 border-dark-accent text-light-muted action-icon-btn" title="View Digital Passport">
+                                        <i class="fas fa-qrcode"></i>
+                                    </a>
+                                {% endif %}
+                                <a href="{% url 'animals:animal_detail' animal.id %}" class="btn btn-sm action-btn rounded-circle">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 border-0">
+                                <div class="mb-3" style="color: #04432a;">
+                                    <i class="fas fa-folder-open fa-3x"></i>
+                                </div>
+                                <h5 class="fw-bold text-white">No livestock found</h5>
+                                <p class="text-light-muted small">Click "Add New Animal" to register your first profile.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* 1. NUKE BOOTSTRAP'S WHITE TABLE VARIABLES */
+    .table, .table-hover, .table-striped, .table-bordered {
+        --bs-table-bg: transparent !important;
+        --bs-table-accent-bg: transparent !important;
+        --bs-table-striped-bg: transparent !important;
+        --bs-table-hover-bg: transparent !important;
+    }
+
+    /* Main Backgrounds & Borders */
+    .dark-module-bg { 
+        background-color: #022a1c !important; 
+        border: 1px solid #04432a !important;
+    }
+    .border-bottom-dark {
+        border-bottom: 1px solid #04432a !important;
+    }
+    .border-dark-accent {
+        border-color: #04432a !important;
+    }
+
+    /* Text Colors */
+    .neon-text { color: #bdf241 !important; } 
+    .text-white { color: #ffffff !important; }
+    .text-light-muted { color: #94a3b8 !important; } 
+
+    /* Table Headers */
+    .custom-dark-table thead th {
+        background-color: #011f14 !important; 
+        color: #bdf241 !important; 
+        font-weight: 800 !important;
+        font-size: 0.75rem !important;
+        letter-spacing: 1px !important;
+        border-bottom: 1px solid #04432a !important;
+        text-transform: uppercase !important;
+    }
+
+    /* ==========================================
+       UPDATED: PREMIUM NEON HOVER EFFECT
+       ========================================== */
+    .custom-dark-table tbody tr {
+        background-color: transparent !important;
+        border-bottom: 1px solid #04432a !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    
+    .custom-dark-table tbody tr:hover {
+        /* Subtle neon-green transparent wash */
+        background-color: rgba(189, 242, 65, 0.08) !important; 
+        /* Bright neon indicator line on the far left */
+        box-shadow: inset 4px 0 0 0 #bdf241 !important; 
+    }
+    
+    .custom-dark-table td {
+        background-color: transparent !important; 
+        vertical-align: middle !important;
+        color: #ffffff !important;
+        border-color: #04432a !important;
+    }
+
+    /* Neon Outlined Buttons */
+    .btn-neon {
+        background-color: transparent !important;
+        color: #bdf241 !important;
+        border: 2px solid #bdf241 !important;
+        font-weight: 700 !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .btn-neon:hover {
+        background-color: #bdf241 !important;
+        color: #022a1c !important;
+    }
+
+    /* Animal Tag Pill */
+    .animal-tag-pill {
+        background-color: transparent !important;
+        color: #bdf241 !important;
+        border: 1px solid #bdf241 !important;
+        border-radius: 6px !important;
+        padding: 3px 10px !important;
+        font-weight: 800 !important;
+        font-size: 0.85rem !important;
+        display: inline-block !important;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        border-radius: 50rem !important;
+        padding: 4px 12px !important;
+        font-size: 0.75rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .badge-active { background-color: #facc15 !important; color: #422006 !important; } 
+    .badge-sick { background-color: #f87171 !important; color: #450a0a !important; } 
+    .badge-sold { background-color: #94a3b8 !important; color: #0f172a !important; } 
+    .badge-other { background-color: #38bdf8 !important; color: #082f49 !important; } 
+
+    /* Action Buttons */
+    .action-btn {
+        background-color: transparent !important;
+        border: 1px solid #bdf241 !important;
+        color: #bdf241 !important;
+        width: 32px !important;
+        height: 32px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        transition: all 0.2s;
+    }
+    .action-btn:hover {
+        background-color: #bdf241 !important;
+        color: #022a1c !important;
+        transform: scale(1.1);
+    }
+
+    .action-icon-btn {
+        width: 32px !important;
+        height: 32px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        transition: all 0.2s;
+    }
+    .action-icon-btn:hover {
+        background-color: #04432a !important;
+        color: #ffffff !important;
+        transform: scale(1.1);
+    }
+</style>
 {% endblock %}
